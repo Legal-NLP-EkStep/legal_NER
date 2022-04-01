@@ -1,11 +1,12 @@
 # legal_NER
 ## Why Seperate NER for Indian Legal Texts?
-Legal Named Entity Recognition (L-NER): Named Entities Recognition is commonly studied problem in Natural Language Processing and many pre-trained models are publicly available. However legal documents have peculiar named entities like names of petitioner, respondent, court, statute, provision, precedents,  etc. These entity types are not recognized by standard Named Entity Recognizer like spacy. Hence there is a need to develop a Legal NER system. But ther are no publicly available annotated datasets for this task. In order to help the data annotation process, we have created this rule based approach on top of pretrained spacy models. The NER tags created could be inspected by humans to correct which eventually could be used to train an AI model.
+Named Entities Recognition is commonly studied problem in Natural Language Processing and many pre-trained models are publicly available. However legal documents have peculiar named entities like names of petitioner, respondent, court, statute, provision, precedents,  etc. These entity types are not recognized by standard Named Entity Recognizer like spacy. Hence there is a need to develop a Legal NER model. But ther are no publicly available annotated datasets for this task. In order to help the data annotation process, we have created this rule based approach on top of pretrained spacy models. The NER tags created could be inspected by humans to correct which eventually could be used to train an AI model.
 ## Which Legal Entities are covered?
+This code can extract following named entities from Indian Court judgments.
 | NER             | Group    | Description                                                                                                                                                                                                                                |
 | --------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Court           | ORG      | Name of the courts (supreme , high court, district etc.) mentioned in text.                                 |
-| Police Station  | ORG      | Police Station mentioned anywhere in text                                                                                                                                                                                                  |
+| Police Station  | ORG      | Police Station mentioned in judgment text                                                                                                                                                                                                  |
 | Organization    | ORG      | Name of organizations mentioned in text apart from court & police stations. E.g. Banks, PSU, private companies                                                                                                                           |
 | Statute         | LAW      | Name of the act or law under which case is filed                                                                                                                                                                                           |
 | Provision       | LAW      | Sections, articles or rules under the statute                                                                                                                                                                                              |
@@ -49,7 +50,7 @@ python -m spacy download en_core_web_trf
 python -m spacy download en_core_web_sm
 ```
 
-## Extracting entities from your custom text
+## Extracting entities from input court judgment text
 Please refer to legal_ner.py for extracting entities from custom text.
 ```python
     from legal_ner import create_spacy_pipelines,extract_entities_from_judgment_text
@@ -76,6 +77,7 @@ Please refer to legal_ner.py for extracting entities from custom text.
 ```
 The output will look like below
 ![Example NER output](NER_example.png)
+
 ## How does Legal NER work?
 Legal NER uses spacy NER models and add some rules on top of them. Judgment is broken into 2 parts viz. preamble and main text.
 ### Entities from Preamble
@@ -83,7 +85,8 @@ Preamble of judgment contains formatted metadata like names of parties, judges, 
 Spacy pipeline for preamble is lightweight en_core_web_sm model with custom sentencizer which splits sentences on new lines and does Part of Speech tagging. The proper nouns in the preamble are extracted and are assigned entities based on the rules. The rules are mainly based on the vicinity of the proper nouns to keywords for each entity. E.g. proper noun with word "petitioner" in same sentence is likely to be the name of petitioner. Please refer to preamble_pipeline.py for more details on the rules.
 
 ### Entities from judment main text
-Spacy pipeline for the main text is en_core_web_trf model and uses built-in named entity recognizer. The entities extracted from text are futher refined based on the rules. E.g. PERSON followed by patter (PW1) is likely to be the name of the witness. 
+The text following preamble till the end of the judgment is the main text. We extract following entities from preamble: Court,Petitioner Name, Respondent Name, Police Station, organization, statute, provision, precedent,case_id, witness name, other person.
+Spacy pipeline for the main text is en_core_web_trf model and uses built-in named entity recognizer. The entities extracted from text are futher refined based on the rules. E.g. PERSON followed by pattern (PW1) is likely to be the name of the witness. 
 Please refere to judgment_text_pipeline.py for more details on the rules.
 
 ## Customizing rules for best results on your data
