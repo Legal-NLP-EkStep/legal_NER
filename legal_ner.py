@@ -10,10 +10,10 @@ from spacy.tokens import Span
 import time
 
 
-def extract_entities_from_judgment_text(txt,nlp_preamble_splitting , nlp_judgment,nlp_preamble):
+def extract_entities_from_judgment_text(txt, nlp_judgment,nlp_preamble):
     ######### Seperate Preamble and judgment text
     seperation_start_time = time.time()
-    preamble_text,preamble_end= seperate_and_clean_preamble(txt,nlp_preamble_splitting)
+    preamble_text,preamble_end= seperate_and_clean_preamble(txt,nlp_preamble)
     print("Seperating Preamble took " + str(time.time() - seperation_start_time))
 
     ########## process main judgement text
@@ -45,24 +45,20 @@ def create_spacy_pipelines():
 
     ###### Pipeline for preamble
     nlp_preamble = get_spacy_nlp_pipeline_for_preamble(nlp_judgment.vocab)
-    nlp_preamble.add_pipe("extract_preamble_entities", after="ner")
+    nlp_preamble.add_pipe("extract_preamble_entities", after="lemmatizer")
 
-    ###### Pipeline for preamble splitting
-    nlp_preamble_splitting = get_spacy_nlp_pipeline_for_preamble(nlp_judgment.vocab)
-    return nlp_preamble_splitting,nlp_preamble,nlp_judgment
+    return nlp_preamble,nlp_judgment
 
 if __name__ == "__main__":
-    #indiankanoon_url = 'https://indiankanoon.org/doc/768571/'
-    indiankanoon_url = 'https://indiankanoon.org/doc/102783788/'
-    txt = get_text_from_indiankanoon_url(indiankanoon_url)
+    ############## Get judgment text from indiankanoon or paste your own text
+    indiankanoon_url = 'https://indiankanoon.org/doc/542273/'
+    txt = get_text_from_indiankanoon_url(indiankanoon_url) ######## or txt ='paste your judgment text'
 
     ######## create spacy pipelines needed for preamble & main text
-    start_time = time.time()
-    nlp_preamble_splitting,nlp_preamble,nlp_judgment = create_spacy_pipelines()
-    print("Creation of pipelines took " + str(time.time() - start_time))
+    nlp_preamble,nlp_judgment = create_spacy_pipelines()
 
     ########## Extract Entities
-    combined_doc = extract_entities_from_judgment_text(txt,nlp_preamble_splitting , nlp_judgment,nlp_preamble)
+    combined_doc = extract_entities_from_judgment_text(txt,nlp_judgment,nlp_preamble)
 
     ########### show the entities
     extracted_ent_labels = list(set([i.label_ for i in combined_doc.ents]))
