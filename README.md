@@ -76,7 +76,7 @@ Please refer to legal_ner.py for extracting entities from custom text.
 ```
 The output will look like below
 ![Example NER output](NER_example.png)
-## How Legal NER works?
+## How does Legal NER work?
 Legal NER uses spacy NER models and add some rules on top of them. Judgment is broken into 2 parts viz. preamble and main text.
 ### Entities from Preamble
 Preamble of judgment contains formatted metadata like names of parties, judges, lawyers,date, court etc. We extract following entities from preamble: Court,Petitioner Name, Respondent Name, Judge Name, Lawyer Name.
@@ -87,4 +87,4 @@ Spacy pipeline for the main text is en_core_web_trf model and uses built-in name
 Please refere to judgment_text_pipeline.py for more details on the rules.
 
 ## Customizing rules for best results on your data
-The rules are written based on the observations from typrical judgments. So it may miss some entities from text. The accuracy of the legal NER is dependent on the accuracy of the spacy pipelines. It is observed that many entities in preamble are missed because the names are not identified as proper nouns. This is because the preamble sentences are not proper English sentences. As next steps OpenNyAI would collect human annotated data for NER and we expect that these models would give much better performance.
+The rules are written based on the observations from typrical judgments. So it may miss some entities from text. The accuracy of the legal NER is dependent on the accuracy of the spacy pipelines. It is observed that many entities in preamble are missed because the names are not identified as proper nouns. This is because the preamble sentences are not proper English sentences. As next steps OpenNyAI would collect human annotated data for NER and we expect that these models would give much better performance. Till then you can customize the rules as per your data to make this better.
