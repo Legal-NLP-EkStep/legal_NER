@@ -50,7 +50,10 @@ python -m spacy download en_core_web_sm
 ```
 
 ## Extracting entities from your custom text
+Please refer to legal_ner.py for extracting entities from custom text.
 ```python
+    from legal_ner import create_spacy_pipelines,extract_entities_from_judgment_text
+    from data_preparation import get_text_from_indiankanoon_url
     ############## Get judgment text from indiankanoon or paste your own text 
     indiankanoon_url = 'https://indiankanoon.org/doc/542273/'
     txt = get_text_from_indiankanoon_url(indiankanoon_url) ######## or txt ='paste your judgment text'
@@ -72,11 +75,16 @@ python -m spacy download en_core_web_sm
 
 ```
 The output will look like below
-![Example NER output](NER_example.pdf)
+![Example NER output](NER_example.png)
 ## How Legal NER works?
-Legal NER uses spacy NER models and add some rules on top of them. Judgment is broken into 2 parts viz. preamble and main text. Preamble of judgment contains formatted metadata like names of parties, judges, lawyers,date, court etc.
-Spacy pipeline for preamble is lightweight en_core_web_sm model with custom sentencizer which splits sentences on new lines and does Part of Speech tagging. The proper nouns in the preamble are extracted and are assigned entities based on the rules as mentioned in table below.
-Spacy pipeline for the main text is en_core_web_trf model and uses built-in named entity recognizer. The entities extracted from text are futher refined based on the rules mentioned in table below.
+Legal NER uses spacy NER models and add some rules on top of them. Judgment is broken into 2 parts viz. preamble and main text.
+### Entities from Preamble
+Preamble of judgment contains formatted metadata like names of parties, judges, lawyers,date, court etc. We extract following entities from preamble: Court,Petitioner Name, Respondent Name, Judge Name, Lawyer Name.
+Spacy pipeline for preamble is lightweight en_core_web_sm model with custom sentencizer which splits sentences on new lines and does Part of Speech tagging. The proper nouns in the preamble are extracted and are assigned entities based on the rules. The rules are mainly based on the vicinity of the proper nouns to keywords for each entity. E.g. proper noun with word "petitioner" in same sentence is likely to be the name of petitioner. Please refer to preamble_pipeline.py for more details on the rules.
 
+### Entities from judment main text
+Spacy pipeline for the main text is en_core_web_trf model and uses built-in named entity recognizer. The entities extracted from text are futher refined based on the rules. E.g. PERSON followed by patter (PW1) is likely to be the name of the witness. 
+Please refere to judgment_text_pipeline.py for more details on the rules.
 
 ## Customizing rules for best results on your data
+The rules are written based on the observations from typrical judgments. So it may miss some entities from text. The accuracy of the legal NER is dependent on the accuracy of the spacy pipelines. It is observed that many entities in preamble are missed because the names are not identified as proper nouns. This is because the preamble sentences are not proper English sentences. As next steps OpenNyAI would collect human annotated data for NER and we expect that these models would give much better performance.
