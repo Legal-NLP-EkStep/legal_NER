@@ -1,7 +1,7 @@
 # legal_NER
 ## Why Seperate NER for Indian Legal Texts?
-Legal Named Entity Recognition (L-NER): Named Entities Recognition is commonly studied problem in Natural Language Processing and many pre-trained models are publicly available. However legal documents have peculiar named entities like names of petitioner, respondent, court, statute, provision, precedents,  etc. These entity types are not recognized by standard Named Entity Recognizer like spacy. Hence there is a need to develop a Legal NER system.
-## What Legal Entities are covered?
+Legal Named Entity Recognition (L-NER): Named Entities Recognition is commonly studied problem in Natural Language Processing and many pre-trained models are publicly available. However legal documents have peculiar named entities like names of petitioner, respondent, court, statute, provision, precedents,  etc. These entity types are not recognized by standard Named Entity Recognizer like spacy. Hence there is a need to develop a Legal NER system. But ther are no publicly available annotated datasets for this task. In order to help the data annotation process, we have created this rule based approach on top of pretrained spacy models. The NER tags created could be inspected by humans to correct which eventually could be used to train an AI model.
+## Which Legal Entities are covered?
 | NER             | Group    | Description                                                                                                                                                                                                                                |
 | --------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Court           | ORG      | Name of the courts (supreme , high court, district etc.) mentioned in text.                                 |
@@ -9,7 +9,7 @@ Legal Named Entity Recognition (L-NER): Named Entities Recognition is commonly s
 | Organization    | ORG      | Name of organizations mentioned in text apart from court & police stations. E.g. Banks, PSU, private companies                                                                                                                           |
 | Statute         | LAW      | Name of the act or law under which case is filed                                                                                                                                                                                           |
 | Provision       | LAW      | Sections, articles or rules under the statute                                                                                                                                                                                              |
-| Precedent       | CASE\_ID | Higher Court cases referred in the judgment                                                                                                                            |
+| Precedent       | CASE\_ID | Past Court cases referred in the judgment as precedent                                                                                                                            |
 | Case number     | CASE\_ID | Other Case number mentioned in the current judgment                                                                                                                                                                   |
 | Petitioner Name | PERSON   | Name of Appellant/ Petitioner in current judgment. The names could be multiple. Only names should be matched and suffixes like Dr.,Mr., Etc. should be excluded. The references to Appellants like appellant no.1 should also be excluded. |
 | Respondent Name | PERSON   | Name of Respondent in current judgment                                                                                                                                                                                                     |
@@ -71,8 +71,12 @@ python -m spacy download en_core_web_sm
     displacy.serve(combined_doc, style='ent',port=8080,options=options)
 
 ```
+The output will look like below
+![Example NER output](Rhetorical_Roles_Structure.png)
 ## How Legal NER works?
-legal NER breaks the judgment into 2 parts viz. preamble and main text. 
-Legal NER is based on spacy models and adds 
+Legal NER uses spacy NER models and add some rules on top of them. Judgment is broken into 2 parts viz. preamble and main text. Preamble of judgment contains formatted metadata like names of parties, judges, lawyers,date, court etc.
+Spacy pipeline for preamble is lightweight en_core_web_sm model with custom sentencizer which splits sentences on new lines and does Part of Speech tagging. The proper nouns in the preamble are extracted and are assigned entities based on the rules as mentioned in table below.
+Spacy pipeline for the main text is en_core_web_trf model and uses built-in named entity recognizer. The entities extracted from text are futher refined based on the rules mentioned in table below.
+
 
 ## Customizing rules for best results on your data
