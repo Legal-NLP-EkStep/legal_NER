@@ -72,7 +72,7 @@ python -m spacy download en_core_web_sm
 
 ```
 The output will look like below
-![Example NER output](Rhetorical_Roles_Structure.png)
+![Example NER output](NER_example.pdf)
 ## How Legal NER works?
 Legal NER uses spacy NER models and add some rules on top of them. Judgment is broken into 2 parts viz. preamble and main text. Preamble of judgment contains formatted metadata like names of parties, judges, lawyers,date, court etc.
 Spacy pipeline for preamble is lightweight en_core_web_sm model with custom sentencizer which splits sentences on new lines and does Part of Speech tagging. The proper nouns in the preamble are extracted and are assigned entities based on the rules as mentioned in table below.
