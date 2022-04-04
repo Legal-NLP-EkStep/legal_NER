@@ -354,7 +354,7 @@ def detect_post_entities(doc):
             new_ents.append(new_ent)
 
     new_ents = [ent for ent in new_ents if
-                ent.label_ not in ['GPE', 'PERSON', 'LAW', 'DATE', 'MONEY', 'CARDINAL','ORDINAL','FAC']]
+                ent.label_ not in ['GPE', 'PERSON', 'LAW', 'DATE', 'MONEY', 'CARDINAL','ORDINAL','FAC','WORK_OF_ART','QUANTITY','PERCENT','TIME','PRODUCT']]
 
     new_ents = filter_overlapping_entities(new_ents)
 
