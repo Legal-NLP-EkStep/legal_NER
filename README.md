@@ -91,3 +91,6 @@ Please refere to judgment_text_pipeline.py for more details on the rules.
 
 ## Customizing rules for best results on your data
 The rules are written based on the observations from typrical judgments. So it may miss some entities from text. The accuracy of the legal NER is dependent on the accuracy of the spacy pipelines. It is observed that many entities in preamble are missed because the names are not identified as proper nouns. This is because the preamble sentences are not proper English sentences. As next steps OpenNyAI would collect human annotated data for NER and we expect that these models would give much better performance. Till then you can customize the rules as per your data to make this better.
+
+## Acknowledgements
+This work is part of [OpenNyAI](https://opennyai.org/) mission which is funded by [EkStep](https://ekstep.org/) and [Agami](https://agami.in/). 
