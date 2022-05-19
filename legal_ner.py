@@ -19,7 +19,8 @@ def extract_entities_from_judgment_text(txt, nlp_judgment,nlp_preamble):
     ########## process main judgement text
     judgement_start_time = time.time()
     judgement_text=txt[preamble_end:]
-    judgement_text = re.sub(r'([^.\"\?])\n+ *', r'\1 ', judgement_text)
+    #####  replace new lines in middle of sentence with spaces.
+    judgement_text = re.sub(r'(\w[ -]*)(\n+)', r'\1 ', judgement_text)
     doc_judgment=nlp_judgment(judgement_text)
     print("Creating doc for jdgement  took " + str(time.time() - judgement_start_time))
 
@@ -51,7 +52,7 @@ def create_spacy_pipelines():
 
 if __name__ == "__main__":
     ############## Get judgment text from indiankanoon or paste your own text
-    indiankanoon_url = 'https://indiankanoon.org/doc/542273/'
+    indiankanoon_url = 'https://indiankanoon.org/doc/160278245/'
     txt = get_text_from_indiankanoon_url(indiankanoon_url) ######## or txt ='paste your judgment text'
 
     ######## create spacy pipelines needed for preamble & main text

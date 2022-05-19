@@ -1,6 +1,6 @@
 
 from urllib.request import Request, urlopen
-from bs4 import BeautifulSoup as soup
+from bs4 import BeautifulSoup as soup,Tag
 import re
 def convert_upper_case_to_title(txt):
     ########### convert the uppercase words to title case for catching names in NER
@@ -70,19 +70,35 @@ def seperate_and_clean_preamble(txt,preamble_splitting_nlp):
 
 def get_text_from_indiankanoon_url(url):
     req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-    webpage = urlopen(req, timeout=10).read()
-    page_soup = soup(webpage, "html.parser")
-    judgment_txt = page_soup.text
-    ########### Remove the text before start of main judgment
-    judgement_start_pattern = 'Free for one month and pay only if you like it.'
-    if judgment_txt.find(judgement_start_pattern) != -1:
-        judgment_txt = judgment_txt.split(judgement_start_pattern,1)[1]
-    judgment_txt = judgment_txt.strip().split('\n',2)[2] ##### remove first two lines which tell court name & case
 
-    ########### Remove the extra information added by IndianKanoon if it  exists
-    judgment_txt = re.sub(r'^Equivalent citations\:.*\n','',judgment_txt)
-    judgment_txt = re.sub(r'^Author\:.*\n', '', judgment_txt)
-    judgment_txt = re.sub(r'^Bench\:.*\n', '', judgment_txt)
+    try:
+        webpage = urlopen(req, timeout=10).read()
+        page_soup = soup(webpage, "html.parser")
+
+        preamble_tags = page_soup.find_all('pre')
+        preamble_txt = ''.join([i.text for i in  preamble_tags if i.get('id') is not None and i['id'].startswith('pre_')])
+        judgment_txt_tags = page_soup.find_all(['p','blockquote'])
+        judgment_txt = ''
+        for judgment_txt_tag in judgment_txt_tags:
+            tag_txt=''
+            if judgment_txt_tag.get('id') is not None and (judgment_txt_tag['id'].startswith('p_') or
+                                                           judgment_txt_tag['id'].startswith('blockquote_')):
+                for content in judgment_txt_tag.contents:
+                    if isinstance(content,Tag):
+                        if not(content.get('class') is not None and  'hidden_text' in content['class'] ):
+                            tag_txt = tag_txt + content.text
+                    else:
+                        tag_txt = tag_txt + str(content)
+                tag_txt = re.sub(r'\s+(?!\s*$)',' ',tag_txt) ###### replace the multiple spaces, newlines with space except for the ones at the end.
+                tag_txt = re.sub(r'([.\"\?])\n',r'\1 \n\n',tag_txt) ###### add the extra new line for correct sentence breaking in spacy
+
+                judgment_txt = judgment_txt + tag_txt
+        judgment_txt = re.sub(r'\n{2,}', '\n\n', judgment_txt)
+        judgment_txt = preamble_txt + judgment_txt
+
+    except:
+        judgment_txt=''
+
     return judgment_txt.strip()
 
 def get_preamble_end_char_offset(judgment_txt,court):
