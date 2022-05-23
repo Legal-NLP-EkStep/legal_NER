@@ -6,10 +6,12 @@ This code can extract following named entities from Indian Court judgments.
 | NER             | Group    | Description                                                                                                                                                                                                                                |
 | --------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Court           | ORG      | Name of the courts (supreme , high court, district etc.) mentioned in text.                                 |
-| Geopolitical Entity  | ORG      | Geopolitical Entity |
+
+| Geopolitical Entity  | ORG      | Geopolitical Entity.        |
 
 | Organization    | ORG      | Name of organizations mentioned in text apart from court & police stations. E.g. Banks, PSU, private companies                                                                                                                           |
-| Date            | DATE | Any date mentioned in the judgment |
+| Date            | DATE     | Any date mentioned in the judgment |
+
 | Statute         | LAW      | Name of the act or law under which case is filed                                                                                                                                                                                           |
 | Provision       | LAW      | Sections, articles or rules under the statute                                                                                                                                                                                              |
 | Precedent       | CASE\_ID | Past Court cases referred in the judgment as precedent                                                                                                                            |
