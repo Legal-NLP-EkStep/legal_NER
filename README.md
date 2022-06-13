@@ -80,13 +80,13 @@ The output will look like below
 ![Example NER output](NER_example.png)
 
 ## How does Legal NER work?
-Legal NER uses spacy NER models and add some rules on top of them. Judgment is broken into 2 parts viz. preamble and main text.
+Legal NER uses spacy NER models and add some rules on top of them. Judgment is broken into 2 parts viz. preamble and judgment text.
 ### Entities from Preamble
 Preamble of judgment contains formatted metadata like names of parties, judges, lawyers,date, court etc. We extract following entities from preamble: Court,Petitioner Name, Respondent Name, Judge Name, Lawyer Name.
 Spacy pipeline for preamble is lightweight en_core_web_sm model with custom sentencizer which splits sentences on new lines and does Part of Speech tagging. The proper nouns in the preamble are extracted and are assigned entities based on the rules. The rules are mainly based on the vicinity of the proper nouns to keywords for each entity. E.g. proper noun with word "petitioner" in same sentence is likely to be the name of petitioner. Please refer to preamble_pipeline.py for more details on the rules.
 
-### Entities from judgment main text
-The text following preamble till the end of the judgment is the main text. We extract following entities from judgment main text: Court,Petitioner Name, Respondent Name, Police Station, organization, statute, provision, precedent,case_id, witness name, other person.
+### Entities from judgment  text
+The text following preamble till the end of the judgment is the main text. We extract following entities from judgment main text: Court,Petitioner Name, Respondent Name, organization, statute, provision, precedent,case_id, witness name, other person.
 Spacy pipeline for the main text is en_core_web_trf model and uses built-in named entity recognizer. The entities extracted from text are futher refined based on the rules. E.g. PERSON followed by pattern (PW1) is likely to be the name of the witness. 
 Please refere to judgment_text_pipeline.py for more details on the rules.
 
