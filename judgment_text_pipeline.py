@@ -2,7 +2,8 @@ import spacy
 import re
 from spacy.language import Language
 from spacy.tokens import Span
-
+from dateparser import parse
+from dateparser import parse
 def get_citation(doc, text, starts):
     '''Uses regex to identify citations in the judgmment and returns citation as a new entity'''
     regex = '(\(\d+\)|\d+|\[\d+\])\s*(\(\d+\)|\d+|\[\d+\])*\s*[A-Z]+\s*(\(\d+\)|\d+|\[\d+\])+\s*(\(\d+\)|\d+|\[\d+\])*\s*'
@@ -16,7 +17,6 @@ def get_citation(doc, text, starts):
             new_ents.append(ent)
 
     return new_ents
-
 
 
 def get_police_station(doc, text, starts):
@@ -33,7 +33,7 @@ def get_police_station(doc, text, starts):
             i = i - 1
         token_start = i + 1
         if token_start != token_number:
-            ent = Span(doc, token_start, token_number + 1, label="PoliceStation")
+            ent = Span(doc, token_start, token_number + 1, label="POLICE STATION")
 
             new_ents.append(ent)
     return new_ents
@@ -53,24 +53,25 @@ def get_precedents(doc, text, starts):
         j = token_number_end + 1
 
         while doc[i].text[0].isupper() or doc[i].text.startswith('other') or doc[i].text in (
-                'of', '-', '&', '@', '(', ')', '\n', '.') or doc[i].text.isdigit():
+                'of', '-', '&', '@', '(', ')', '\n', '.','and') or doc[i].text.isdigit():
             if ',' in doc[i].text:
                 break
             token_number_start = i
             i = i - 1
 
         while doc[j].text[0].isupper() or doc[j].text.startswith('other') or doc[j].text in (
-                'of', '-', '&', '@', '(', ')', '\n', 'others', '.') or doc[i].text.isdigit():
+                'of', '-', '&', '@', '(', ')', '\n', 'others', '.','and') or doc[i].text.isdigit():
             token_number_end = j
 
             if ',' in doc[j].text:
                 break
             j = j + 1
+        if token_number_start > -1 and token_number_start<token_number-1:
 
-        if token_number_end > token_number_start + 2 and token_number_start != token_number and token_number_end != token_number:
-            ent = Span(doc, token_number_start, token_number_end + 1, label="PRECEDENT")
+            if token_number_end > token_number_start + 2 and token_number_end > token_number and token_number_end != token_number:
+                ent = Span(doc, token_number_start, token_number_end + 1, label="PRECEDENT")
 
-            final_ents.append(ent)
+                final_ents.append(ent)
 
     citation_entities = get_citation(doc, text, starts)
 
@@ -80,7 +81,8 @@ def get_precedents(doc, text, starts):
             break
         citation_entity = (min(citation_entities, key=lambda x: abs(ents.end - x.start)))
 
-        if (token_num + 1 == citation_entity.start or  token_num > citation_entity.start )and token_num < citation_entity.end:
+        if (
+                (  ( token_num == citation_entity.start or token_num > citation_entity.start) and token_num < citation_entity.end)    or (token_num+1==citation_entity.start and doc[token_num].text==',')):
 
             citation_entities.remove(citation_entity)
             ent = Span(doc, ents.start, citation_entity.end, label="PRECEDENT")
@@ -117,8 +119,6 @@ def get_court_case(doc, text, starts):
     return new_ents
 
 
-
-
 def get_provisions(doc):
     '''Uses regex to identify the provision based on keyword section and returns Provision as a new entity'''
     new_ents = []
@@ -136,7 +136,7 @@ def get_provisions(doc):
             next_token = doc[count]
             next_text = next_token.text.strip().lower()
 
-            while num_there(next_text) or next_text in ['to', 'and', ',', '/', '', '(', ')', '.']:
+            while num_there(next_text) or next_text in ['to', 'and', ',', '/', '', '(', ')', '.','&']:
                 count = count + 1
                 next_token = doc[count]
                 next_text = next_token.text.strip().lower()
@@ -154,11 +154,17 @@ def get_provisions(doc):
 def filter_overlapping_entities(ents):
     '''Removes the overlapping entities in the judgmnent text'''
     filtered_ents = []
+
+
+
     for span in spacy.util.filter_spans(ents):
         filtered_ents.append(span)
+
+
     return filtered_ents
 
-def get_entity(regex,doc,text,label):
+
+def get_entity(regex, doc, text, label):
     '''returns entity based on the given regex'''
     new_ents = []
     for x in re.finditer(regex, text):
@@ -178,22 +184,25 @@ def detect_pre_entities(doc):
     new_ents = []
     final_ents = []
 
-
     regex_res = r'(?i)\b(respondent|respondents)\s*(((?i)no\.\s*\d+)|((?i)numbers)|((?i)number)|((?i)nos\.\s*\d+))*\s*(\d+|\,|and|to|\s*|–)+'
-    regex_statute = r'(?i)((i\.*\s*p\.*\s*c\.*\s*)|(c\.*\s*r\.*\s*p\.*\s*c\.*\s*)|(indian*\s*penal\s*code\s*)|(penal\s*code\.*\s*)\n*)'
+    regex_statute = r'(?i)((i\.*\s*p\.*\s*c\.*\s*)|(c\.*\s*r\.*\s*p\.*\s*c\.*\s*)|(indian*\s*penal\s*code\s*)|(penal\s*code\.*\s*)|(code\s*of\s*criminal\s*procedure\s*)\n*)'
+
     regex_pw = r"\b(((?i)\s*\(*(P\.*W\.*s*)+\-*\s*(\d*\s*\,*\)*(and|to)*)*)|(?i)witness\s*)"
     regex_app = r'(?i)\b(appellant|appellants)\s*(((?i)no\.\s*\d+)|((?i)numbers)|((?i)number)|((?i)nos\.\s*\d+))*\s*(\d+|\,|and|to|\s*|–)+'
-    respondent_keywords = get_entity(regex_res,doc,text,'key-rs')
-    appellant_keywords = get_entity(regex_app,doc,text,'key-ap')
-    witness_keywords =get_entity(regex_pw,doc,text,'key-pw')
+    regex_judge = r'\b(?i)(J\.)'
+    respondent_keywords = get_entity(regex_res, doc, text, 'key-rs')
+    appellant_keywords = get_entity(regex_app, doc, text, 'key-ap')
+    witness_keywords = get_entity(regex_pw, doc, text, 'key-pw')
+    judge_keywords = get_entity(regex_judge, doc, text, 'key-jud')
     police_station = get_police_station(doc, text, starts)
     precedents = get_precedents(doc, text, starts)
     court_cases = get_court_case(doc, text, starts)
-    statutes = get_entity(regex_statute,doc,text,'key-pw')
+    statutes = get_entity(regex_statute, doc, text, 'STATUTE')
     provisions = get_provisions(doc)
     new_ents.extend(respondent_keywords)
     new_ents.extend(appellant_keywords)
     new_ents.extend(witness_keywords)
+    new_ents.extend(judge_keywords)
     new_ents.extend(police_station)
     new_ents.extend(precedents)
     new_ents.extend(court_cases)
@@ -222,22 +231,22 @@ def get_provision_statute_from_law_using_of(doc, ent):
         section = ent_text.lower().find('sub-section')
     else:
         section = -1
-
     if section != -1:
         if section < ent_text.find('of'):
-            ent = doc.char_span(ent.start_char, ent.start_char + ent_text.find('of'), label="PROVISION",
-                                alignment_mode="expand")
-            new_ents.append(ent)
-            ent = doc.char_span(ent.start_char + ent_text.find('of') + 2, ent.end_char, label="STATUTE",
-                                alignment_mode="expand")
-            new_ents.append(ent)
+            ents = doc.char_span(ent.start_char, ent.start_char + ent_text.find('of'), label="PROVISION",
+                                 alignment_mode="expand")
+            new_ents.append(ents)
+            ents = doc.char_span(ent.start_char + ent_text.find('of') + 2, ent.end_char, label="STATUTE",
+                                 alignment_mode="expand")
+            new_ents.append(ents)
         else:
-            ent = doc.char_span(ent.start_char + ent_text.find('of') + 2, ent.end_char, label="PROVISION",
-                                alignment_mode="expand")
-            new_ents.append(ent)
-            ent = doc.char_span(ent.start_char, ent.start_char + ent_text.find('of'), label="STATUTE",
-                                alignment_mode="expand")
-            new_ents.append(ent)
+            ents = doc.char_span(ent.start_char + ent_text.find('of') + 2, ent.end_char, label="PROVISION",
+                                 alignment_mode="expand")
+            new_ents.append(ents)
+            ents = doc.char_span(ent.start_char, ent.start_char + ent_text.find('of'), label="STATUTE",
+                                 alignment_mode="expand")
+            new_ents.append(ents)
+
     return new_ents
 
 
@@ -245,10 +254,10 @@ def get_provision_statute_from_law_using_keyword(doc, ent):
     '''Detects provision and statute from entity law identified by default NER' using keywords'''
     new_ents = []
     ent_text = ent.text
-    if ent_text.lower().find('act') != -1:
+    if (ent_text.lower().find('act')!= -1  or ent_text.lower().find('code')  != -1 or 'constitution' in ent_text.lower()) and len(ent_text)>4:
         ent.label_ = 'STATUTE'
         new_ents.append(ent)
-    elif ent_text.lower().find('section') != -1:
+    elif ( ent_text.lower().find('section')!= -1 or  ent_text.lower().find('article') != -1) and len(ent_text)>7:
         ent.label_ = 'PROVISION'
         new_ents.append(ent)
     else:
@@ -261,10 +270,11 @@ def get_prpopern_entitiy(doc, ent, entity_label):
     token_num = ent.end
     new_ents = []
 
-    while len(doc) > token_num and (doc[token_num].ent_type_ == "PERSON" or doc[token_num].text == ',' or doc[token_num].pos_ == 'PROPN'):
+    while len(doc) > token_num and (
+            doc[token_num].ent_type_ == "PERSON" or doc[token_num].text == ',' or doc[token_num].pos_ == 'PROPN'):
         token_num = token_num + 1
     if token_num > ent.end + 1:
-        new_ent = Span(doc, ent.end, token_num, label=entity_label )
+        new_ent = Span(doc, ent.end, token_num, label=entity_label)
         new_ents.append(new_ent)
     return new_ents
 
@@ -272,35 +282,90 @@ def get_prpopern_entitiy(doc, ent, entity_label):
 def get_witness(doc, new_ent):
     '''Detects witness using the keyword key-pw'''
     new_ents = []
+    delete=0
     token_num_end = new_ent.end
     token_num_start = new_ent.start - 1
 
-    while len(doc) > token_num_end and (
+    if doc[token_num_end].ent_type_ == "PERSON":
+
+
+        while len(doc) > token_num_end and (
             doc[token_num_end].ent_type_ == "PERSON" or doc[token_num_end].text == ',' or doc[
         token_num_end].pos_ == 'PROPN'):
-        token_num_end = token_num_end + 1
+            token_num_end = token_num_end + 1
+        if token_num_end > new_ent.end + 1:
+            ent = Span(doc, new_ent.end, token_num_end, label="WITNESS")
+            delete=1
+            new_ents.append(ent)
+    elif doc[token_num_start].ent_type_ == "PERSON":
 
-    while doc[token_num_start].ent_type_ == "PERSON" or doc[token_num_start].text == ',' or doc[
-        token_num_end].pos_ == 'PROPN':
-        token_num_start = token_num_start - 1
+        while  token_num_start>-1 and (doc[token_num_start].ent_type_ == "PERSON" or doc[token_num_start].text == ',' or doc[
+        token_num_end].pos_ == 'PROPN'):
+            token_num_start = token_num_start - 1
 
-    if token_num_end > new_ent.end + 1:
-        ent = Span(doc, new_ent.end, token_num_end, label="WITNESS")
-        new_ents.append(ent)
 
-    if token_num_start < new_ent.start and doc[token_num_start + 1].text != ',':
-        ent = Span(doc, token_num_start + 1, new_ent.start, label="WITNESS")
 
-        new_ents.append(ent)
+
+        if token_num_start < new_ent.start-1 and doc[token_num_start + 1].text != ',':
+
+            ent = Span(doc, token_num_start + 1, new_ent.start, label="WITNESS")
+            delete=-1
+
+            new_ents.append(ent)
+
+
+    return new_ents,delete
+
+
+def get_prpopern_entitiy_before(doc, ent, entity_label):
+    '''Detects the propernoun/person in the given string'''
+    token_num = ent.start
+    new_ents = []
+
+
+    while (
+            doc[token_num].ent_type_ == "PERSON" or doc[token_num].text == ',' or doc[token_num].pos_ == 'PROPN'):
+        token_num = token_num - 1
+
+    if token_num < ent.start - 1 and token_num>-1:
+        new_ent = Span(doc, token_num + 1, ent.start, label=entity_label)
+        new_ents.append(new_ent)
     return new_ents
+
+def check_complete_nc(doc, new_ent,nc_list,label):
+    new_ents = []
+
+
+    if [new_ent.start,new_ent.end]  in nc_list:
+        new_ents.append(new_ent)
+
+
+    return new_ents
+
+def check_dates(new_ents):
+    entities=[]
+    for ent in new_ents:
+        if ent.label_=='DATE':
+
+            if parse(ent.text, locales=['en-IN'], settings={'PARSERS': ['absolute-time'], 'STRICT_PARSING': True}):
+                entities.append(ent)
+        else:
+            entities.append(ent)
+    return entities
+
+
 
 
 @Language.component("detect_post_entities")
 def detect_post_entities(doc):
     '''Works on top of default NER to identify entities'''
     new_ents = []
+    to_delete=[]
+    nc_list = []
+    for noun_chunk in doc.noun_chunks:
+        nc_list.append([noun_chunk.start, noun_chunk.end])
 
-    for new_ent in list(doc.ents):
+    for index,new_ent in enumerate(list(doc.ents)):
 
         ent_text = new_ent.text
 
@@ -317,10 +382,14 @@ def detect_post_entities(doc):
                 provision_statute_entities = get_provision_statute_from_law_using_keyword(doc, new_ent)
                 new_ents.extend(provision_statute_entities)
         elif new_ent.label_ == "ORG":
-            if 'court' in ent_text.lower():
+
+            regex_courts=r'\b(?i)((the)*\s*((high|trial|session|sessions)+\s*court*s*\s*)|(court\s*of\s*(session|sessions)+\s*))$'
+            if 'court' in ent_text.lower() and re.search(regex_courts,ent_text) is None :
+
                 if len(ent_text.split(' ')) > 1:
                     ent = doc.char_span(new_ent.start_char, new_ent.end_char, label="COURT", alignment_mode="expand")
                     new_ents.append(ent)
+
 
             elif 'police station' in ent_text.lower():
                 token_num = new_ent.end
@@ -339,6 +408,10 @@ def detect_post_entities(doc):
                 new_ents.append(ent)
 
 
+
+        elif new_ent.label_ == "GPE":
+            gpe = check_complete_nc(doc, new_ent,nc_list ,'GPE')
+            new_ents.extend(gpe)
         elif new_ent.label_ == "key-rs":
             respondents = get_prpopern_entitiy(doc, new_ent, 'RESPONDENT')
             new_ents.extend(respondents)
@@ -346,22 +419,47 @@ def detect_post_entities(doc):
             appellants = get_prpopern_entitiy(doc, new_ent, 'APPELLANT')
             new_ents.extend(appellants)
         elif new_ent.label_ == "key-pw":
-            witness = get_witness(doc, new_ent)
+            witness,delete = get_witness(doc, new_ent)
+            if delete!=0:
+
+                to_delete.append(len(new_ents)+delete)
+
             new_ents.extend(witness)
 
 
-        else:
-            new_ents.append(new_ent)
+        elif new_ent.label_ == "key-jud":
+            judge = get_prpopern_entitiy_before(doc, new_ent, 'JUDGE')
+            new_ents.extend(judge)
 
-    new_ents = [ent for ent in new_ents if
-                ent.label_ not in ['LOC', 'PERSON', 'LAW', 'MONEY', 'CARDINAL','ORDINAL','FAC','WORK_OF_ART','QUANTITY','PERCENT','TIME','PRODUCT','LANGUAGE','NORP','EVENT']]
+
+
+        else:
+
+            new_ents.append(new_ent)
+    for ele in sorted(to_delete, reverse=True):
+        del new_ents[ele]
+
+    '''new_ents = [ent for ent in new_ents if
+                ent.label_ not in ['LOC', 'PERSON', 'LAW', 'MONEY', 'CARDINAL','ORDINAL','FAC','WORK_OF_ART','QUANTITY',
+                                   'PERCENT','TIME','PRODUCT','LANGUAGE','NORP','EVENT','FACTORY']]'''
+
+
+    for ent in new_ents:
+        if ent.label_=='PERSON':
+            ent.label_='OTHER_PERSON'
+
+
+
 
     new_ents = filter_overlapping_entities(new_ents)
+    # new_ents=check_dates(new_ents)
 
     doc.ents = new_ents
 
     return doc
 
+
+# def remove_unwanted_entities()
 def get_judgment_text_pipeline():
     '''Returns the spacy pipeline for processing of the judgment text'''
     nlp_judgment = spacy.load("en_core_web_trf", disable=[])

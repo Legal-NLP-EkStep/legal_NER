@@ -2,15 +2,18 @@
 import spacy
 from spacy import displacy
 import re
-from data_preparation import seperate_and_clean_preamble
-from judgment_text_pipeline import get_judgment_text_pipeline
-from preamble_pipeline import get_spacy_nlp_pipeline_for_preamble
-from data_preparation import get_text_from_indiankanoon_url
+
+import sys
+sys.path.append('/Users/astha/PycharmProjects/nlp_for_legal/src/')
+from data_prep.NER.data_preparation import seperate_and_clean_preamble
+from data_prep.NER.judgment_text_pipeline import get_judgment_text_pipeline
+from data_prep.NER.preamble_pipeline import get_spacy_nlp_pipeline_for_preamble
+from scrape_download_data.indiakanoonscrapper import IndianKanoon
 from spacy.tokens import Span
 import time
 
 
-def extract_entities_from_judgment_text(txt, nlp_judgment,nlp_preamble):
+def extract_entities_from_judgment_text(txt,nlp_judgment,nlp_preamble):
     ######### Seperate Preamble and judgment text
     seperation_start_time = time.time()
     preamble_text,preamble_end= seperate_and_clean_preamble(txt,nlp_preamble)
@@ -45,18 +48,23 @@ def create_spacy_pipelines():
         nlp_judgment.vocab.strings.add(preamble_entity)
 
     ###### Pipeline for preamble
-    nlp_preamble = get_spacy_nlp_pipeline_for_preamble(nlp_judgment.vocab)
+    nlp_preamble = get_spacy_nlp_pipeline_for_preamble(nlp_judgment.vocab,'en_core_web_trf')
     nlp_preamble.add_pipe("extract_preamble_entities", after="lemmatizer")
 
+    ###### Pipeline for preamble splitting
+    #nlp_preamble_splitting = get_spacy_nlp_pipeline_for_preamble(nlp_judgment.vocab)
     return nlp_preamble,nlp_judgment
 
 if __name__ == "__main__":
-    ############## Get judgment text from indiankanoon or paste your own text
-    indiankanoon_url = 'https://indiankanoon.org/doc/160278245/'
-    txt = get_text_from_indiankanoon_url(indiankanoon_url) ######## or txt ='paste your judgment text'
+    indiankanoon_url = 'https://indiankanoon.org/doc/768571/'
+    #indiankanoon_url = 'https://indiankanoon.org/doc/639803/'
+    scrapper = IndianKanoon()
+    txt = scrapper.get_text_from_indiankanoon_url(indiankanoon_url)
 
     ######## create spacy pipelines needed for preamble & main text
+    start_time = time.time()
     nlp_preamble,nlp_judgment = create_spacy_pipelines()
+    print("Creation of pipelines took " + str(time.time() - start_time))
 
     ########## Extract Entities
     combined_doc = extract_entities_from_judgment_text(txt,nlp_judgment,nlp_preamble)

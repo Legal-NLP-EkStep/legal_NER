@@ -88,6 +88,9 @@ def match_span_with_keyword(span,keyword_dict):
             ############# check for lawyer pattern
             if len([token for token in span if token.lower_ in keyword_dict['lawyer_keywords']]) > 0:
                 span_label='LAWYER'
+            ##### check if the "for" keyword is present after petitioner or respondent keyword
+            elif any([span.text.lower().find('for '+i)>=0 for i in keyword_dict['petitioner_keywords']+keyword_dict['respondent_keywords']]):
+                span_label = 'LAWYER'
             else:
                 ########## check for petitioner
                 if len([token for token in span if token.lower_ in keyword_dict['petitioner_keywords']]) > 0:
@@ -102,11 +105,16 @@ def validate_label(text_to_evaluate, sent_label):
     valid_label= True
     if sent_label=='COURT' and not text_to_evaluate.lower().__contains__('court'):
         valid_label = False
+    else:
+        #### there should be atleast two characters
+        if len([ele for ele in text_to_evaluate if ele.isalpha()]) <=2:
+            valid_label = False
     return valid_label
 
 
-def add_chunk_entities(new_ents,block_ents,label_for_unknown_ents,doc,block_start_with_sequence_number,label_indicated_by_previous_block):
+def add_chunk_entities(new_ents, block_ents, label_for_unknown_ents, doc, block_start_with_sequence_number, label_indicated_by_previous_block, block_label_carry_forward_over_block_cnt, block_in_sequence, previous_block_sequence_number):
     sequence_number_suggested_next_block_label = None
+    entities_cnt_added_from_current_chunk = 0
     for block_ent in block_ents:
         entity_label = block_ent['label']
         if entity_label != 'UNKNOWN':
@@ -121,14 +129,25 @@ def add_chunk_entities(new_ents,block_ents,label_for_unknown_ents,doc,block_star
             if valid_label:
                 new_ent = Span(doc, block_ent['start'], block_ent['end'], label=final_entity_label)
                 new_ents.append(new_ent)
+                entities_cnt_added_from_current_chunk +=1
                 if final_entity_label in ['PETITIONER', 'RESPONDENT']:
-                    if block_start_with_sequence_number and final_entity_label == label_indicated_by_previous_block:
+                    if block_start_with_sequence_number and final_entity_label == label_indicated_by_previous_block and block_in_sequence:
                         sequence_number_suggested_next_block_label = final_entity_label
                     else:
                         sequence_number_suggested_next_block_label = None
                     ##### choose the first entity of the block for PETITIONER & RESPONDENT
                     break
-    return sequence_number_suggested_next_block_label
+    if (entities_cnt_added_from_current_chunk ==0 or final_entity_label == label_indicated_by_previous_block) and block_label_carry_forward_over_block_cnt < 4 :
+        sequence_number_suggested_next_block_label = label_indicated_by_previous_block
+        if label_indicated_by_previous_block is not None:
+            block_label_carry_forward_over_block_cnt +=1
+    else:
+        # if block_label_carry_forward_over_block_cnt >= 4:
+        previous_block_sequence_number = 0
+        block_label_carry_forward_over_block_cnt = 0
+        sequence_number_suggested_next_block_label = None
+
+    return sequence_number_suggested_next_block_label, block_label_carry_forward_over_block_cnt, previous_block_sequence_number
 
 def get_next_block_label(keyword_suggested_next_block_label,sequence_number_suggested_next_block_label):
     if keyword_suggested_next_block_label:
@@ -146,12 +165,15 @@ def check_if_sentence_is_at_end_of_block(text):
     ########## check if sentence is ending with multiple new lines or the keywords that define end of block
     next_block_label = None
     current_block_end= False
-    if re.match(r'^\s*Between\:?\s*$', text):
+    if re.match(r'^\s*Between *\:?\s*$', text) or re.match(r'^\s*BETWEEN *\:?\s*$', text) or\
+        re.match(r'^\s*appellant.*', text, re.IGNORECASE) or \
+        re.match(r'^\s*petitioner.*', text, re.IGNORECASE):
         next_block_label = "PETITIONER"
         current_block_end = True
-    elif re.match(r'^\s*And\:?\s*$', text) or re.match(r'^\s*v\/?s[\:\s\.]*$', text,
-                                                            re.IGNORECASE) or re.match(r'^\s*versus[\:\s\.]*$',
-                                                                                       text, re.IGNORECASE):
+    elif re.match(r'^\s*And *\:?\s*$', text) or re.match(r'^\s*AND *\:?\s*$', text) or\
+            re.match(r'^\s*v\/?s[\:\s\.]*$', text,re.IGNORECASE) or \
+            re.match(r'^\s*versus[\:\s\.]*$',text, re.IGNORECASE) or \
+            re.match(r'^\s*respondent.*', text, re.IGNORECASE):
         next_block_label = "RESPONDENT"
         current_block_end = True
     elif re.match(r'.*\n *\n+ *$', text):
@@ -160,11 +182,11 @@ def check_if_sentence_is_at_end_of_block(text):
     return current_block_end ,next_block_label
 
 
-def get_label_for_unknown_ents(block_label, label_indicated_by_previous_block):
+def get_label_for_unknown_ents(block_label, label_indicated_by_previous_block,block_in_sequence):
     ######## for the entities where keywords are not found in same sentence, try to see if block labels could be used
     if block_label is not None:
         label_for_unknown_ents = block_label
-    elif block_label is None and label_indicated_by_previous_block is not None:
+    elif block_label is None and label_indicated_by_previous_block is not None and block_in_sequence:
         label_for_unknown_ents = label_indicated_by_previous_block
     else:
         label_for_unknown_ents = None
@@ -173,7 +195,7 @@ def get_label_for_unknown_ents(block_label, label_indicated_by_previous_block):
 @Language.component("extract_preamble_entities")
 def extract_preamble_entities(doc):
     keyword_dict = {
-    'lawyer_keywords' : ['advocate','adv.','counsel','lawyer','adv','advocates'],
+    'lawyer_keywords' : ['advocate','adv.','counsel','lawyer','adv','advocates','advs.','advs'],
     'judge_keywords' : ['justice','honourable',"hon'ble",'coram',"coram:","bench"],
     'petitioner_keywords' : ['appellant','petitioner','appellants','petitioners','petitioner(s)','petitioner(s','applicants','applicant','prosecution','complainant'],
     'respondent_keywords' : ['respondent','defendent','respondents'],
@@ -190,18 +212,30 @@ def extract_preamble_entities(doc):
     current_block_end =True
     block_start_with_sequence_number = False
     label_indicated_by_previous_block = None
-    for sent in doc.sents:
+    block_label_carry_forward_over_emptyblock_cnt = 0
+    previous_block_sequence_number = 0
+    sentences_cnt = len([i for i in doc.sents])
+    block_in_sequence =False
+    for sent_number, sent in enumerate(doc.sents):
         ###### check if new block is starting with serial number
         if current_block_end:
             if re.match(r'^\d[\.\)\]\s]+.*',sent.text):
                 block_start_with_sequence_number = True
-            current_block_end = False #### reset the block end flag
+                block_start_number = int(re.search(r'^\d+',sent.text ).group())
+                if block_start_number == previous_block_sequence_number+1:
+                    block_in_sequence = True
+                    previous_block_sequence_number += 1
+                else:
+                    block_in_sequence = False
+                    previous_block_sequence_number = 0
+                    block_label_carry_forward_over_emptyblock_cnt = 0
+
 
         ########## get the entity type by matching with keywords
         sent_label = match_span_with_keyword(sent, keyword_dict)
 
         ########## Use the first sentence label for the block label
-        if sent_label is not None and block_label is None:
+        if sent_label is not None and block_label is None and sent_label not in ['COURT','JUDGE']:
             block_label = sent_label
 
         ########### get proper nouns from sentence which are candidates for entities
@@ -222,9 +256,9 @@ def extract_preamble_entities(doc):
         current_block_end,keyword_suggested_next_block_label = check_if_sentence_is_at_end_of_block(sent.text)
 
         ######## if current block is ending then choose entities to be added
-        if current_block_end:
-            label_for_unknown_ents = get_label_for_unknown_ents(block_label,label_indicated_by_previous_block)
-            sequence_number_suggested_next_block_label = add_chunk_entities(new_ents,block_ents,label_for_unknown_ents,doc,block_start_with_sequence_number,label_indicated_by_previous_block)
+        if current_block_end or sent_number == sentences_cnt-1:
+            label_for_unknown_ents = get_label_for_unknown_ents(block_label,label_indicated_by_previous_block,block_in_sequence)
+            sequence_number_suggested_next_block_label,block_label_carry_forward_over_emptyblock_cnt,previous_block_sequence_number = add_chunk_entities(new_ents,block_ents,label_for_unknown_ents,doc,block_start_with_sequence_number,label_indicated_by_previous_block,block_label_carry_forward_over_emptyblock_cnt,block_in_sequence,previous_block_sequence_number)
             next_block_label = get_next_block_label(keyword_suggested_next_block_label,sequence_number_suggested_next_block_label)
 
             block_ents= []
