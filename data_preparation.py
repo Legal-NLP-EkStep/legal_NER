@@ -1,4 +1,7 @@
 import re
+from urllib.request import urlopen, Request
+
+from bs4 import BeautifulSoup as soup, Tag
 import spacy
 def remove_unwanted_text(text):
     '''Looks for pattern  which typically starts the main text of jugement.
@@ -121,3 +124,55 @@ def seperate_and_clean_preamble(txt,preamble_splitting_nlp):
     preamble_txt = txt[:preamble_end]
     title_txt = convert_upper_case_to_title(preamble_txt)
     return title_txt,preamble_end
+
+def get_useful_text_from_indiankanoon_html_tag(ik_tag):
+        tag_txt = ''
+        for content in ik_tag.contents:
+            if isinstance(content, Tag):
+                if not (content.get('class') is not None and 'hidden_text' in content['class']):
+                    tag_txt = tag_txt + content.text
+            else:
+                tag_txt = tag_txt + str(content)
+        return tag_txt
+
+def get_text_from_indiankanoon_url( url):
+        req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+
+
+        webpage = urlopen(req, timeout=10).read()
+        page_soup = soup(webpage, "html.parser")
+
+        first_preamble_tag = page_soup.find('pre')
+        first_preamble_tag_text = get_useful_text_from_indiankanoon_html_tag(first_preamble_tag)
+        preamble_text = first_preamble_tag_text
+        for next_tag in first_preamble_tag.find_all_next(string=False):
+            if next_tag.get('id') is not None and next_tag['id'].startswith('pre_'):
+                preamble_text = preamble_text + get_useful_text_from_indiankanoon_html_tag(next_tag)
+            elif next_tag.get('id') is not None and next_tag['id'].startswith('p_') :
+                break
+
+        judgment_txt_tags = page_soup.find_all(['p', 'blockquote'])
+        judgment_txt = ''
+        for judgment_txt_tag in judgment_txt_tags:
+            tag_txt = ''
+            if judgment_txt_tag.get('id') is not None and (judgment_txt_tag['id'].startswith('p_') or
+                                                           judgment_txt_tag['id'].startswith('blockquote_')):
+                for content in judgment_txt_tag.contents:
+                    if isinstance(content, Tag):
+                        if not (content.get('class') is not None and 'hidden_text' in content['class']):
+                            tag_txt = tag_txt + content.text
+                    else:
+                        tag_txt = tag_txt + str(content)
+                tag_txt = re.sub(r'\s+(?!\s*$)', ' ',
+                                 tag_txt)  ###### replace the multiple spaces, newlines with space except for the ones at the end.
+                tag_txt = re.sub(r'([.\"\?])\n', r'\1 \n\n',
+                                 tag_txt)  ###### add the extra new line for correct sentence breaking in spacy
+
+                judgment_txt = judgment_txt + tag_txt
+        judgment_txt = re.sub(r'\n{2,}', '\n\n', judgment_txt)
+        judgment_txt = preamble_text + '\n\n' +judgment_txt
+
+        # except:
+        #     judgment_txt = ''
+
+        return judgment_txt.strip()

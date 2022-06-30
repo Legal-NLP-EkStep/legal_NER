@@ -2,13 +2,10 @@
 import spacy
 from spacy import displacy
 import re
+from data_preparation import seperate_and_clean_preamble,get_text_from_indiankanoon_url
+from judgment_text_pipeline import get_judgment_text_pipeline
+from preamble_pipeline import get_spacy_nlp_pipeline_for_preamble
 
-import sys
-sys.path.append('/Users/astha/PycharmProjects/nlp_for_legal/src/')
-from data_prep.NER.data_preparation import seperate_and_clean_preamble
-from data_prep.NER.judgment_text_pipeline import get_judgment_text_pipeline
-from data_prep.NER.preamble_pipeline import get_spacy_nlp_pipeline_for_preamble
-from scrape_download_data.indiakanoonscrapper import IndianKanoon
 from spacy.tokens import Span
 import time
 
@@ -56,10 +53,10 @@ def create_spacy_pipelines():
     return nlp_preamble,nlp_judgment
 
 if __name__ == "__main__":
-    indiankanoon_url = 'https://indiankanoon.org/doc/768571/'
+    indiankanoon_url = 'https://indiankanoon.org/doc/146788000'
     #indiankanoon_url = 'https://indiankanoon.org/doc/639803/'
-    scrapper = IndianKanoon()
-    txt = scrapper.get_text_from_indiankanoon_url(indiankanoon_url)
+
+    txt = get_text_from_indiankanoon_url(indiankanoon_url)
 
     ######## create spacy pipelines needed for preamble & main text
     start_time = time.time()
@@ -75,5 +72,6 @@ if __name__ == "__main__":
               'WITNESS':"violet","STATUTE":"#faea99","PROVISION":"yellow",'CASE_NUMBER':"#fbb1cf","PRECEDENT":"#fad6d6",
               'POLICE_STATION':"#b1ecf7",'OTHER_ORG':"#b0f6a2"}
     options = {"ents": extracted_ent_labels, "colors": colors}
+
 
     displacy.serve(combined_doc, style='ent',port=8080,options=options)
