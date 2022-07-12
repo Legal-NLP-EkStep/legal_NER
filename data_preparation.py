@@ -135,44 +135,112 @@ def get_useful_text_from_indiankanoon_html_tag(ik_tag):
                 tag_txt = tag_txt + str(content)
         return tag_txt
 
-def get_text_from_indiankanoon_url( url):
+def get_text_from_indiankanoon_url(url):
         req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
 
+        try:
+            webpage = urlopen(req, timeout=10).read()
+            page_soup = soup(webpage, "html.parser")
 
-        webpage = urlopen(req, timeout=10).read()
-        page_soup = soup(webpage, "html.parser")
+            first_preamble_tag = page_soup.find('pre')
+            first_preamble_tag_text = get_useful_text_from_indiankanoon_html_tag(first_preamble_tag)
+            preamble_ids=[]
+            preamble_text = first_preamble_tag_text
+            for next_tag in first_preamble_tag.find_all_next(string=False):
+                if next_tag.get('id') is not None and next_tag['id'].startswith('pre_'):
+                    preamble_text = preamble_text + get_useful_text_from_indiankanoon_html_tag(next_tag)
+                    preamble_ids.append(next_tag.get('id'))
+                elif next_tag.get('id') is not None and next_tag['id'].startswith('p_') :
+                    break
 
-        first_preamble_tag = page_soup.find('pre')
-        first_preamble_tag_text = get_useful_text_from_indiankanoon_html_tag(first_preamble_tag)
-        preamble_text = first_preamble_tag_text
-        for next_tag in first_preamble_tag.find_all_next(string=False):
-            if next_tag.get('id') is not None and next_tag['id'].startswith('pre_'):
-                preamble_text = preamble_text + get_useful_text_from_indiankanoon_html_tag(next_tag)
-            elif next_tag.get('id') is not None and next_tag['id'].startswith('p_') :
-                break
+            judgment_txt_tags = page_soup.find_all(['p', 'blockquote','pre'])
+            judgment_txt = ''
+            for judgment_txt_tag in judgment_txt_tags:
+                if judgment_txt_tag.get('id') in preamble_ids:
+                    continue
+                tag_txt = ''
+                if judgment_txt_tag.get('id') is not None and (judgment_txt_tag['id'].startswith('p_') or
+                                                               judgment_txt_tag['id'].startswith('blockquote_') or
+                                                               judgment_txt_tag['id'].startswith('pre_')):
+                    for content in judgment_txt_tag.contents:
+                        if isinstance(content, Tag):
+                            if content.get('class') is not None and 'hidden_text' in content['class']:
+                                if not check_hidden_text_is_invalid(content.text.strip()):
+                                    tag_txt = tag_txt + str(content)
+                            else:
+                                tag_txt = tag_txt + content.text
+                        else:
+                            tag_txt = tag_txt + str(content)
 
-        judgment_txt_tags = page_soup.find_all(['p', 'blockquote'])
-        judgment_txt = ''
-        for judgment_txt_tag in judgment_txt_tags:
-            tag_txt = ''
-            if judgment_txt_tag.get('id') is not None and (judgment_txt_tag['id'].startswith('p_') or
-                                                           judgment_txt_tag['id'].startswith('blockquote_')):
-                for content in judgment_txt_tag.contents:
-                    if isinstance(content, Tag):
-                        if not (content.get('class') is not None and 'hidden_text' in content['class']):
-                            tag_txt = tag_txt + content.text
-                    else:
-                        tag_txt = tag_txt + str(content)
-                tag_txt = re.sub(r'\s+(?!\s*$)', ' ',
-                                 tag_txt)  ###### replace the multiple spaces, newlines with space except for the ones at the end.
-                tag_txt = re.sub(r'([.\"\?])\n', r'\1 \n\n',
-                                 tag_txt)  ###### add the extra new line for correct sentence breaking in spacy
 
-                judgment_txt = judgment_txt + tag_txt
-        judgment_txt = re.sub(r'\n{2,}', '\n\n', judgment_txt)
-        judgment_txt = preamble_text + '\n\n' +judgment_txt
+                    tag_txt = re.sub(r'\s+(?!\s*$)', ' ',
+                                     tag_txt)  ###### replace the multiple spaces, newlines with space except for the ones at the end.
+                    tag_txt = re.sub(r'([.\"\?])\n', r'\1 \n\n',
+                                     tag_txt)  ###### add the extra new line for correct sentence breaking in spacy
 
-        # except:
-        #     judgment_txt = ''
+                    judgment_txt = judgment_txt + tag_txt
+            judgment_txt = re.sub(r'\n{2,}', '\n\n', judgment_txt)
+            judgment_txt = preamble_text + '\n\n' +judgment_txt
+
+        except:
+            judgment_txt = ''
+
+        ###### remove known footer, header patterns
+        regex_patterns_to_remove = ['http://www.judis.nic.in','::: (Uploaded on - |Downloaded on -)+ .*?:::']
+        for pattern in regex_patterns_to_remove:
+            judgment_txt = re.sub(pattern,"",judgment_txt)
+
+        return judgment_txt.strip()
+
+def check_hidden_text_is_invalid(text):
+
+    if not bool(re.match('[a-zA-Z]',"".join(text.split()))):
+        return True
+    elif bool(re.match('::: (Uploaded on - |Downloaded on -)+ .*?:::',text)):
+        return True
+    else:
+        return False
+    def get_text_from_indiankanoon_url(self, url):
+        req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+
+        try:
+            webpage = urlopen(req, timeout=10).read()
+            page_soup = soup(webpage, "html.parser")
+
+            first_preamble_tag = page_soup.find('pre')
+            first_preamble_tag_text = self.get_useful_text_from_indiankanoon_html_tag(first_preamble_tag)
+            preamble_text = first_preamble_tag_text
+            for next_tag in first_preamble_tag.find_all_next(string=False):
+                if next_tag.get('id') is not None and next_tag['id'].startswith('pre_'):
+                    preamble_text = preamble_text + self.get_useful_text_from_indiankanoon_html_tag(next_tag)
+                elif next_tag.get('id') is not None and next_tag['id'].startswith('p_') :
+                    break
+
+            judgment_txt_tags = page_soup.find_all(['p', 'blockquote'])
+            judgment_txt = ''
+            for judgment_txt_tag in judgment_txt_tags:
+                tag_txt = ''
+                if judgment_txt_tag.get('id') is not None and (judgment_txt_tag['id'].startswith('p_') or
+                                                               judgment_txt_tag['id'].startswith('blockquote_')):
+                    for content in judgment_txt_tag.contents:
+                        if isinstance(content, Tag):
+                            if not (content.get('class') is not None and 'hidden_text' in content['class']):
+                                tag_txt = tag_txt + content.text
+                        else:
+
+                            if not check_hidden_text(content.text.strip()):
+                                tag_txt = tag_txt + str(content)
+
+                    tag_txt = re.sub(r'\s+(?!\s*$)', ' ',
+                                     tag_txt)  ###### replace the multiple spaces, newlines with space except for the ones at the end.
+                    tag_txt = re.sub(r'([.\"\?])\n', r'\1 \n\n',
+                                     tag_txt)  ###### add the extra new line for correct sentence breaking in spacy
+
+                    judgment_txt = judgment_txt + tag_txt
+            judgment_txt = re.sub(r'\n{2,}', '\n\n', judgment_txt)
+            judgment_txt = preamble_text + '\n\n' +judgment_txt
+
+        except:
+            judgment_txt = ''
 
         return judgment_txt.strip()
