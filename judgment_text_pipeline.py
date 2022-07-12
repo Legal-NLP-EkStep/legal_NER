@@ -385,9 +385,9 @@ def check_org(doc,regex_courts,ents):
                     if ent.text.lower() in ['state','union']:
                         break
 
-                    # if doc[tokens].pos_=='PROPN':
+                    if doc[tokens].pos_=='PROPN':
 
-                    if pos_tag([ent.text.lower()])[0][1] =='NNP':
+
                         new_ents.append(ent)
                         break
 
