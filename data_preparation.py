@@ -200,47 +200,56 @@ def check_hidden_text_is_invalid(text):
         return True
     else:
         return False
-    def get_text_from_indiankanoon_url(self, url):
+def get_text_from_indiankanoon_url( url):
         req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
 
         try:
             webpage = urlopen(req, timeout=10).read()
             page_soup = soup(webpage, "html.parser")
 
-            first_preamble_tag = page_soup.find('pre')
-            first_preamble_tag_text = self.get_useful_text_from_indiankanoon_html_tag(first_preamble_tag)
-            preamble_text = first_preamble_tag_text
-            for next_tag in first_preamble_tag.find_all_next(string=False):
-                if next_tag.get('id') is not None and next_tag['id'].startswith('pre_'):
-                    preamble_text = preamble_text + self.get_useful_text_from_indiankanoon_html_tag(next_tag)
-                elif next_tag.get('id') is not None and next_tag['id'].startswith('p_') :
-                    break
-
-            judgment_txt_tags = page_soup.find_all(['p', 'blockquote'])
+            judgment_txt_tags = page_soup.find_all(['p', 'blockquote', 'pre'])
             judgment_txt = ''
             for judgment_txt_tag in judgment_txt_tags:
                 tag_txt = ''
                 if judgment_txt_tag.get('id') is not None and (judgment_txt_tag['id'].startswith('p_') or
-                                                               judgment_txt_tag['id'].startswith('blockquote_')):
+                                                               judgment_txt_tag['id'].startswith('blockquote_') or
+                                                               judgment_txt_tag['id'].startswith('pre_')):
                     for content in judgment_txt_tag.contents:
                         if isinstance(content, Tag):
-                            if not (content.get('class') is not None and 'hidden_text' in content['class']):
+                            if content.get('class') is not None and 'hidden_text' in content['class']:
+                                if not check_hidden_text_is_invalid(content.text.strip()):
+                                    tag_txt = tag_txt + str(content)
+                            else:
                                 tag_txt = tag_txt + content.text
                         else:
+                            tag_txt = tag_txt + str(content)
 
-                            if not check_hidden_text(content.text.strip()):
-                                tag_txt = tag_txt + str(content)
-
-                    tag_txt = re.sub(r'\s+(?!\s*$)', ' ',
-                                     tag_txt)  ###### replace the multiple spaces, newlines with space except for the ones at the end.
-                    tag_txt = re.sub(r'([.\"\?])\n', r'\1 \n\n',
-                                     tag_txt)  ###### add the extra new line for correct sentence breaking in spacy
+                    if not judgment_txt_tag['id'].startswith('pre_'):
+                        ##### remove unwanted formating except for pre_ tags
+                        tag_txt = re.sub(r'\s+(?!\s*$)', ' ',
+                                         tag_txt)  ###### replace the multiple spaces, newlines with space except for the ones at the end.
+                        tag_txt = re.sub(r'([.\"\?])\n', r'\1 \n\n',
+                                         tag_txt)  ###### add the extra new line for correct sentence breaking in spacy
+                        tag_txt = re.sub(r'\n{2,}', '\n\n', tag_txt)
 
                     judgment_txt = judgment_txt + tag_txt
-            judgment_txt = re.sub(r'\n{2,}', '\n\n', judgment_txt)
-            judgment_txt = preamble_text + '\n\n' +judgment_txt
 
         except:
             judgment_txt = ''
+
+            ###### remove known footer, header patterns
+        regex_patterns_to_remove = [{'pattern': 'http://www.judis.nic.in(\s*?\x0c\s*?)?'},
+                                    {
+                                        'pattern': '(::: Uploaded on - \d\d/\d\d/\d\d\d\d\s+)?::: Downloaded on - .{5,50}:::'},
+                                    {'pattern': 'https://www.mhc.tn.gov.in/judis/(\s*?\x0c\s*?)?'},
+                                    {
+                                        'pattern': 'Signature Not Verified Signed By:.{5,100}Signing Date:\d\d\.\d\d\.\d\d\d\d(.{1,50}Page \d+\s*?! of \d+\s*?!\s*?\d\d:\d\d:\d\d)?',
+                                        'flags': re.DOTALL | re.IGNORECASE},
+                                    ]
+        for pattern_dict in regex_patterns_to_remove:
+            if pattern_dict.get('flags') is not None:
+                judgment_txt = re.sub(pattern_dict['pattern'], "", judgment_txt, flags=pattern_dict['flags'])
+            else:
+                judgment_txt = re.sub(pattern_dict['pattern'], "", judgment_txt)
 
         return judgment_txt.strip()
