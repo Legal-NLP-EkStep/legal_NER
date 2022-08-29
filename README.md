@@ -5,16 +5,23 @@ Named Entities Recognition is commonly studied problem in Natural Language Proce
 This code can extract following named entities from Indian Court judgments. Some entities are extracted from Preamble of the judgements and some from judgement text. Below is an example ![Example NER output](NER_example.png)
 | NER             | Extract From    | Description                                                                                                                                                                                                                                |
 | --------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Court           | Preamble      | Name of the court which has delivered the current judgement                           
-| Geopolitical Entity  | ORG      | Geopolitical Entity  
-| Organization    | ORG      | Name of organizations mentioned in text apart from court & police stations. E.g. Banks, PSU, private companies 
-| Date            | DATE     | Any date mentioned in the judgment
+| Court           | Preamble      | Name of the court which has delivered the current judgement |
+| Court           | Judgement      | Name of the judge of the current as well as previous cases |
+| Petitioner  | Preamble, Judgment   | Name of the petitioners / appellants /revisionist  from current case |
+| Respondent Name | Preamble, Judgment   | Name of the respondents / defendents /opposition from current case |
+| Judge | Premable | Name of the judges from current case |
+| Judge | Judgment | Name of the judges of the current as well as previous cases |
+| Lawyer | Preamble | Name of the lawyers from both the parties |
+
+| Date | Judgment  | Any date mentioned in the judgment |
+| Organization | Judgment  | Name of organizations mentioned in text apart from court. E.g. Banks, PSU, private companies, police stations, state govt etc. |
+| Geopolitical Entity | Judgment | Geopolitical locations which include names of countries,states,cities, districts and villages | 
 | Statute         | LAW      | Name of the act or law under which case is filed                                                                                                                                                                                           |
 | Provision       | LAW      | Sections, articles or rules under the statute                                                                                                                                                                                              |
 | Precedent       | CASE\_ID | Past Court cases referred in the judgment as precedent                                                                                                                            |
 | Case number     | CASE\_ID | Other Case number mentioned in the current judgment                                                                                                                                                                   |
-| Petitioner Name | PERSON   | Name of Appellant/ Petitioner in current judgment. The names could be multiple. Only names should be matched and suffixes like Dr.,Mr., Etc. should be excluded. The references to Appellants like appellant no.1 should also be excluded. |
-| Respondent Name | PERSON   | Name of Respondent in current judgment                                                                                                                                                                                                     |
+
+
 | Judge Name      | PERSON   | Name of judge in current case                                                                                                                                                                                                              |
 | Lawyer Name     | PERSON   | Name of Lawyers                                                                                                                                                                                                                            |
 | Witness Name    | PERSON   | Name of witnesses in current judgment                                                                                                                                                                                                      |
