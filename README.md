@@ -3,7 +3,7 @@
 Named Entities Recognition is commonly studied problem in Natural Language Processing and many pre-trained models are publicly available. However legal documents have peculiar named entities like names of petitioner, respondent, court, statute, provision, precedents,  etc. These entity types are not recognized by standard Named Entity Recognizer like spacy. Hence there is a need to develop a Legal NER model. But ther are no publicly available annotated datasets for this task. In order to help the data annotation process, we have created this rule based approach on top of pretrained spacy models. The NER tags created could be inspected by humans to correct which eventually could be used to train an AI model.
 ## Which Legal Entities are covered?
 This code can extract following named entities from Indian Court judgments. Some entities are extracted from Preamble of the judgements and some from judgement text. Below is an example ![Example NER output](NER_example.png)
-| NER             | Extract From    | Description                                                                                                                                                                                                                                |
+| NER             | Extract From    | Description |
 | --------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Court           | Preamble      | Name of the court which has delivered the current judgement |
 | Court           | Judgement      | Name of the judge of the current as well as previous cases |
@@ -12,20 +12,15 @@ This code can extract following named entities from Indian Court judgments. Some
 | Judge | Premable | Name of the judges from current case |
 | Judge | Judgment | Name of the judges of the current as well as previous cases |
 | Lawyer | Preamble | Name of the lawyers from both the parties |
-
 | Date | Judgment  | Any date mentioned in the judgment |
 | Organization | Judgment  | Name of organizations mentioned in text apart from court. E.g. Banks, PSU, private companies, police stations, state govt etc. |
 | Geopolitical Entity | Judgment | Geopolitical locations which include names of countries,states,cities, districts and villages | 
-| Statute         | LAW      | Name of the act or law under which case is filed                                                                                                                                                                                           |
-| Provision       | LAW      | Sections, articles or rules under the statute                                                                                                                                                                                              |
-| Precedent       | CASE\_ID | Past Court cases referred in the judgment as precedent                                                                                                                            |
-| Case number     | CASE\_ID | Other Case number mentioned in the current judgment                                                                                                                                                                   |
-
-
-| Judge Name      | PERSON   | Name of judge in current case                                                                                                                                                                                                              |
-| Lawyer Name     | PERSON   | Name of Lawyers                                                                                                                                                                                                                            |
-| Witness Name    | PERSON   | Name of witnesses in current judgment                                                                                                                                                                                                      |
-| other person    | PERSON   | Names of other people that don't belong to any other categories above       
+| Statute | Judgment | Name of the act or law mentioned in the judgement |
+| Provision | Judgment | Sections, sub-sections, articles, orders, rules under a statute |
+| Precedent | Judgment | All the past court cases referred in the judgement as precedent. Precedent consists of party names + citation(optional) or case number (optional) |
+| Case number | Judgment | All the other case numbers mentioned in the judgment (apart from precedent) where party names and citation is not provided |
+| Witness Name    | Judgment   | Name of witnesses in current judgment |
+| other person    | Judgment   | Name of the all the person that are not included in petitioner,respondent,judge and witness |       
 
 ## Installation
 1. Clone the git repo
