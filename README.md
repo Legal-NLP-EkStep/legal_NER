@@ -1,9 +1,10 @@
 # legal_NER
-## Why Seperate NER for Indian Legal Texts?
+## 1. Why Seperate NER for Indian Legal Texts?
 Named Entities Recognition is commonly studied problem in Natural Language Processing and many pre-trained models are publicly available. However legal documents have peculiar named entities like names of petitioner, respondent, court, statute, provision, precedents,  etc. These entity types are not recognized by standard Named Entity Recognizer like spacy. Hence there is a need to develop a Legal NER model. But ther are no publicly available annotated datasets for this task. In order to help the data annotation process, we have created this rule based approach on top of pretrained spacy models. The NER tags created could be inspected by humans to correct which eventually could be used to train an AI model.
-## Which Legal Entities are covered?
-This code can extract following named entities from Indian Court judgments. Some entities are extracted from Preamble of the judgements and some from judgement text. Below is an example ![Example NER output](NER_example.png)
-| NER             | Extract From    | Description |
+## 2. Which Legal Entities are covered?
+This code can extract following named entities from Indian Court judgments. Some entities are extracted from Preamble of the judgements and some from judgement text. Preamble of judgment contains formatted metadata like names of parties, judges, lawyers,date, court etc. The text following preamble till the end of the judgment is called as the "judgment".
+Below is an example ![Example NER output](NER_example.png)
+| Named Entity             | Extract From    | Description |
 | --------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Court           | Preamble      | Name of the court which has delivered the current judgement |
 | Court           | Judgement      | Name of the judge of the current as well as previous cases |
@@ -22,6 +23,30 @@ This code can extract following named entities from Indian Court judgments. Some
 | Witness Name    | Judgment   | Name of witnesses in current judgment |
 | other person    | Judgment   | Name of the all the person that are not included in petitioner,respondent,judge and witness |       
 
+## 3. Data
+## 3.1 Representative sample of Indian Court Judgments 
+A representative sample of Indian court judgment was created by taking most cited IndianKanoon judgments controlling for court and case type. Court were stratefied as per following table.
+| Court Category | Percentage in  Representative Sample | Covered Courts|
+| -------------- | -------------------- | --------------------------------|
+| Supreme Court | 20 | Supreme court | Supreme Court | 
+| High Courts | 70 | 5% from each of following 14 high courts. Bombay, Madras, Gujrat, Delhi, Punjab- Haryana, Karnataka, Rajasthan, Telengana, Allahabad, Kerala, Madhya Pradesh, Calcutta, Patna, Andhra | 
+| District courts | 5 | Delhi district ,Banglore district |
+| Tribunals | 5 | CEGAT , ITAT, STATE TAXATION, CESTAT, Copyright Board, IPAB, CLB, NCLAT, Debt Recovery, SAT |
+
+Taking most cited judgments from a given court would result in bias in certain types of cases (E.g. criminal cases). Hence it is needed to control for types cases to consider the variety of judgements. So we created following 8 types of cases (tax, criminal ,civil, Motor Vehicles, Land & Property, Industrial & Labour, Constitution, Financial) which are most frequently present. Classification of each judgement into one these 8 types is complex task. We have used naive approach to use act names for assigning a judgment to a case type. E.g. if judgment mentions "tax act" then most probably it belongs to "tax" category. Following are the key act names were used in the Indian Kanoon search queries.  
+
+| Case Type | Percentage in each court | Key Act keywords|
+| -------------- | -------------------- | --------------------------------|
+| Tax | 20 |  tax act , excise act, customs act, goods and services act etc. |
+| Criminal | 20 | IPC, penal code, criminal procedure etc. |
+| Civil | 10 | civil procedure, family courts, marriage act, wakf act etc. |
+| Motor Vehicles | 10 | motor vehicles act, mv act, imv act etc. |
+| Land \& Propery | 10 | land acqusition act, succession act, rent control act etc. |
+| Industrial \& Labour | 10 | companies act, industrial disputes act, compensation act etc.|
+| Constitution | 10 | constitution |
+| Financial | 10 | negotiable instruments act, sarfaesi act, foreign exchange regulation act etc.|
+
+ 
 ## Installation
 1. Clone the git repo
 2. Create a new virtual environment & activate it
@@ -81,16 +106,6 @@ Please refer to legal_ner.py for extracting entities from custom text.
 The output will look like below
 
 
-## How does Legal NER work?
-Legal NER uses spacy NER models and add some rules on top of them. Judgment is broken into 2 parts viz. preamble and judgment text.
-### Entities from Preamble
-Preamble of judgment contains formatted metadata like names of parties, judges, lawyers,date, court etc. We extract following entities from preamble: Court,Petitioner Name, Respondent Name, Judge Name, Lawyer Name.
-Spacy pipeline for preamble is lightweight en_core_web_sm model with custom sentencizer which splits sentences on new lines and does Part of Speech tagging. The proper nouns in the preamble are extracted and are assigned entities based on the rules. The rules are mainly based on the vicinity of the proper nouns to keywords for each entity. E.g. proper noun with word "petitioner" in same sentence is likely to be the name of petitioner. Please refer to preamble_pipeline.py for more details on the rules.
-
-### Entities from judgment  text
-The text following preamble till the end of the judgment is the main text. We extract following entities from judgment main text: Court,Petitioner Name, Respondent Name, organization, statute, provision, precedent,case_id, witness name, other person.
-Spacy pipeline for the main text is en_core_web_trf model and uses built-in named entity recognizer. The entities extracted from text are futher refined based on the rules. E.g. PERSON followed by pattern (PW1) is likely to be the name of the witness. 
-Please refere to judgment_text_pipeline.py for more details on the rules.
 
 ## Customizing rules for best results on your data
 The rules are written based on the observations from typrical judgments. So it may miss some entities from text. The accuracy of the legal NER is dependent on the accuracy of the spacy pipelines. It is observed that many entities in preamble are missed because the names are not identified as proper nouns. This is because the preamble sentences are not proper English sentences. As next steps OpenNyAI would collect human annotated data for NER and we expect that these models would give much better performance. Till then you can customize the rules as per your data to make this better.
