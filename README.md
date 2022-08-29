@@ -2,10 +2,10 @@
 ## Why Seperate NER for Indian Legal Texts?
 Named Entities Recognition is commonly studied problem in Natural Language Processing and many pre-trained models are publicly available. However legal documents have peculiar named entities like names of petitioner, respondent, court, statute, provision, precedents,  etc. These entity types are not recognized by standard Named Entity Recognizer like spacy. Hence there is a need to develop a Legal NER model. But ther are no publicly available annotated datasets for this task. In order to help the data annotation process, we have created this rule based approach on top of pretrained spacy models. The NER tags created could be inspected by humans to correct which eventually could be used to train an AI model.
 ## Which Legal Entities are covered?
-This code can extract following named entities from Indian Court judgments.
-| NER             | Group    | Description                                                                                                                                                                                                                                |
+This code can extract following named entities from Indian Court judgments. Some entities are extracted from Preamble of the judgements and some from judgement text. Below is an example ![Example NER output](NER_example.png)
+| NER             | Extract From    | Description                                                                                                                                                                                                                                |
 | --------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Court           | ORG      | Name of the courts (supreme , high court, district etc.) mentioned in text.                           
+| Court           | Preamble      | Name of the court which has delivered the current judgement                           
 | Geopolitical Entity  | ORG      | Geopolitical Entity  
 | Organization    | ORG      | Name of organizations mentioned in text apart from court & police stations. E.g. Banks, PSU, private companies 
 | Date            | DATE     | Any date mentioned in the judgment
@@ -77,7 +77,7 @@ Please refer to legal_ner.py for extracting entities from custom text.
 
 ```
 The output will look like below
-![Example NER output](NER_example.png)
+
 
 ## How does Legal NER work?
 Legal NER uses spacy NER models and add some rules on top of them. Judgment is broken into 2 parts viz. preamble and judgment text.
