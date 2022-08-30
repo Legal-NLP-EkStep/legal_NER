@@ -7,10 +7,9 @@ from spacy.tokens import Span
 import time
 
 
-def extract_entities_from_judgment_text(txt,legal_nlp):
+def extract_entities_from_judgment_text(txt,legal_nlp,nlp_preamble_splitting):
     ######### Seperate Preamble and judgment text
     seperation_start_time = time.time()
-    nlp_preamble_splitting = spacy.load('en_core_web_sm')
     preamble_text,preamble_end= seperate_and_clean_preamble(txt,nlp_preamble_splitting)
     print("Seperating Preamble took " + str(time.time() - seperation_start_time))
 
@@ -41,8 +40,9 @@ if __name__ == "__main__":
     txt = get_text_from_indiankanoon_url(indiankanoon_url)
 
     legal_nlp = spacy.load('/Users/prathamesh/tw_projects/OpenNyAI/data/NER/train/exp_NO4/trf/Combined/model-best') ## path of trained model files
+    preamble_spiltting_nlp = spacy.load('en_core_web_sm') #### only for splitting the preamble and judgment when keywords are not found
     ########## Extract Entities
-    combined_doc = extract_entities_from_judgment_text(txt,legal_nlp)
+    combined_doc = extract_entities_from_judgment_text(txt,legal_nlp,preamble_spiltting_nlp)
 
     ########### show the entities
     extracted_ent_labels = list(set([i.label_ for i in combined_doc.ents]))
