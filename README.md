@@ -68,6 +68,7 @@ Judgements obtained via above mentioned methodology during the time period from 
 
 Since the entities present in the preamble and judgment are different, 2 seperate files are provided for training data. There are 9435 judgement sentences and 1560 preambles. 
 Entity Counts in Judgment train data
+
 |Entity   |Count|
 |------------|----|
 |OTHER_PERSON|2653|
@@ -85,6 +86,7 @@ Entity Counts in Judgment train data
 |RESPONDENT  |324 |
 
 Entity Counts in Preamble train data
+
 |Entity   |Count|
 |------------|----|
 |COURT     |1074|
