@@ -2,28 +2,30 @@
 ## 1. Why Seperate NER for Indian Legal Texts?
 Named Entities Recognition is commonly studied problem in Natural Language Processing and many pre-trained models are publicly available. However legal documents have peculiar named entities like names of petitioner, respondent, court, statute, provision, precedents,  etc. These entity types are not recognized by standard Named Entity Recognizer like spacy. Hence there is a need to develop a Legal NER model. But ther are no publicly available annotated datasets for this task. In order to help the data annotation process, we have created this rule based approach on top of pretrained spacy models. The NER tags created could be inspected by humans to correct which eventually could be used to train an AI model.
 ## 2. Which Legal Entities are covered?
-This code can extract following named entities from Indian Court judgments. Some entities are extracted from Preamble of the judgements and some from judgement text. Preamble of judgment contains formatted metadata like names of parties, judges, lawyers,date, court etc. The text following preamble till the end of the judgment is called as the "judgment".
+Some entities are extracted from Preamble of the judgements and some from judgement text. Preamble of judgment contains formatted metadata like names of parties, judges, lawyers,date, court etc. The text following preamble till the end of the judgment is called as the "judgment".
 Below is an example ![Example NER output](NER_example.png)
+
+This code can extract following named entities from Indian Court judgments.
 <center>
  
 | Named Entity             | Extract From    | Description |
 |:---------------:|:--------:| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Court           | Preamble      | Name of the court which has delivered the current judgement |
-| Court           | Judgement      | Name of the judge of the current as well as previous cases |
-| Petitioner  | Preamble, Judgment   | Name of the petitioners / appellants /revisionist  from current case |
-| Respondent Name | Preamble, Judgment   | Name of the respondents / defendents /opposition from current case |
-| Judge | Premable | Name of the judges from current case |
-| Judge | Judgment | Name of the judges of the current as well as previous cases |
-| Lawyer | Preamble | Name of the lawyers from both the parties |
-| Date | Judgment  | Any date mentioned in the judgment |
-| Organization | Judgment  | Name of organizations mentioned in text apart from court. E.g. Banks, PSU, private companies, police stations, state govt etc. |
-| Geopolitical Entity | Judgment | Geopolitical locations which include names of countries,states,cities, districts and villages | 
-| Statute | Judgment | Name of the act or law mentioned in the judgement |
-| Provision | Judgment | Sections, sub-sections, articles, orders, rules under a statute |
-| Precedent | Judgment | All the past court cases referred in the judgement as precedent. Precedent consists of party names + citation(optional) or case number (optional) |
-| Case number | Judgment | All the other case numbers mentioned in the judgment (apart from precedent) where party names and citation is not provided |
-| Witness Name    | Judgment   | Name of witnesses in current judgment |
-| other person    | Judgment   | Name of the all the person that are not included in petitioner,respondent,judge and witness |     
+| COURT          | Preamble      | Name of the court which has delivered the current judgement |
+| COURT           | Judgement      | Name of any court mentioned |
+| PETITIONER  | Preamble, Judgment   | Name of the petitioners / appellants /revisionist  from current case |
+| RESPONDENT | Preamble, Judgment   | Name of the respondents / defendents /opposition from current case |
+| JUDGE | Premable | Name of the judges from current case |
+| JUDGE | Judgment | Name of the judges of the current as well as previous cases |
+| LAWYER | Preamble | Name of the lawyers from both the parties |
+| DATE | Judgment  | Any date mentioned in the judgment |
+| ORG | Judgment  | Name of organizations mentioned in text apart from court. E.g. Banks, PSU, private companies, police stations, state govt etc. |
+| GPE | Judgment | Geopolitical locations which include names of countries,states,cities, districts and villages | 
+| STATUTE | Judgment | Name of the act or law mentioned in the judgement |
+| PROVISION | Judgment | Sections, sub-sections, articles, orders, rules under a statute |
+| PRECEDENT | Judgment | All the past court cases referred in the judgement as precedent. Precedent consists of party names + citation(optional) or case number (optional) |
+| CASE\_NUMBER | Judgment | All the other case numbers mentioned in the judgment (apart from precedent) where party names and citation is not provided |
+| WITNESS    | Judgment   | Name of witnesses in current judgment |
+| OTHER_PERSON    | Judgment   | Name of the all the person that are not included in petitioner,respondent,judge and witness |     
  
 </center>
 
@@ -60,11 +62,36 @@ Taking most cited judgments from a given court would result in bias in certain t
  For each of the court and the case type combination mentioned above, an Indiankanoon query was created with with key words and court filters. Top most cited results from each query was taken. All such results were combined to produce final result. Duplicate judgments obtained in the results were dropped. 
 
 ### 3.2 Training & Test Data
-Training data is available here.
+Training data is available [here](https://storage.googleapis.com/indianlegalbert/OPEN_SOURCED_FILES/NER/NER_TRAIN.zip).
 
-Judgements obtained via above mentioned methodology during the time period from 1950 to 2017 was used to take sentences for annotation of training data. Judgements from 2017 to 2021 were used to select test data judgments.  We used spacy pretrained model(en_core_web_trf) with custom rules to predict the legal named entities. This model was used to select sentences which are likely to contain the legal named entities. We also tried to reduce class imbalance across the entities by upsampling the rare entities. The preannotated sentences were annotated by the legal experts and data scientists at OpenNyAI. 
+Judgements obtained via above mentioned methodology during the time period from 1950 to 2017 was used to take sentences for annotation of training data. Judgements from 2017 to 2021 were used to select test data judgments. For preannotations, we used spacy pretrained model(en_core_web_trf) with custom rules to predict the legal named entities. This model was used to select sentences which are likely to contain the legal named entities. We also tried to reduce class imbalance across the entities by upsampling the rare entities. The preannotated sentences were annotated by the legal experts and data scientists at OpenNyAI. 
 
-Descriptive stats of the training data (coming soon)
+Since the entities present in the preamble and judgment are different, 2 seperate files are provided for training data. There are 9435 judgement sentences and 1560 preambles. 
+Entity Counts in Judgment train data
+|Entity   |Count|
+|------------|----|
+|OTHER_PERSON|2653|
+|PROVISION   |2384|
+|DATE        |1885|
+|STATUTE     |1804|
+|ORG         |1441|
+|GPE         |1398|
+|PRECEDENT   |1351|
+|COURT       |1293|
+|CASE_NUMBER |1040|
+|WITNESS     |881 |
+|JUDGE       |567 |
+|PETITIONER  |464 |
+|RESPONDENT  |324 |
+
+Entity Counts in Preamble train data
+|Entity   |Count|
+|------------|----|
+|COURT     |1074|
+|PETITIONER|2604|
+|RESPONDENT|3538|
+|LAWYER    |3505|
+|JUDGE     |1758|
 
 ## 4. Baseline Model
 Baseline model was trained using [spacy-transformers](https://spacy.io/usage/training) with roberta-base. The trained model is available here (coming soon).
