@@ -35,7 +35,7 @@ More detailed definitions with examples can be found [here](https://docs.google.
 A representative sample of Indian court judgment was created by taking most cited IndianKanoon judgments controlling for court and case type. Court were stratefied as per following table.
 <center>
  
-| Court Category | Percentage in  Representative Sample | Covered Courts|
+| Court Category | Percentage | Covered Courts|
 |:--------------:|:--------------------:| --------------------------------|
 | Supreme Court | 20 | Supreme court | Supreme Court | 
 | High Courts | 70 | 5% from each of following 14 high courts: Bombay, Madras, Gujrat, Delhi, Punjab- Haryana, Karnataka, Rajasthan, Telengana, Allahabad, Kerala, Madhya Pradesh, Calcutta, Patna, Andhra | 
@@ -47,7 +47,7 @@ A representative sample of Indian court judgment was created by taking most cite
 Taking most cited judgments from a given court would result in bias in certain types of cases (E.g. criminal cases). Hence it is needed to control for types cases to consider the variety of judgements. So we created following 8 types of cases (tax, criminal ,civil, Motor Vehicles, Land & Property, Industrial & Labour, Constitution, Financial) which are most frequently present. Classification of each judgement into one these 8 types is complex task. We have used naive approach to use act names for assigning a judgment to a case type. E.g. if judgment mentions "tax act" then most probably it belongs to "tax" category. Following are the key act names were used in the Indian Kanoon search queries.  
 <center>
 
-| Case Type | Percentage in each court | Key Act keywords|
+| Case Type | Percentage | Key Act keywords|
 |:--------------:|:--------------------:| --------------------------------|
 | Tax | 20 |  tax act , excise act, customs act, goods and services act etc. |
 | Criminal | 20 | IPC, penal code, criminal procedure etc. |
@@ -95,31 +95,6 @@ Entity Counts in Preamble train data
 
 ## 4. Baseline Model
 Baseline model was trained using [spacy-transformers](https://spacy.io/usage/training) with roberta-base. The trained model is available here (coming soon).
-
-### 4.1 Use Baseline model to extract entities from input court judgment text
-```python
-    from legal_ner import create_spacy_pipelines,extract_entities_from_judgment_text
-    from data_preparation import get_text_from_indiankanoon_url
-    ############## Get judgment text from indiankanoon or paste your own text 
-    indiankanoon_url = 'https://indiankanoon.org/doc/542273/'
-    txt = get_text_from_indiankanoon_url(indiankanoon_url) ######## or txt ='paste your judgment text'
-
-    ######## create spacy pipelines needed for preamble & main text
-    nlp_preamble,nlp_judgment = create_spacy_pipelines()
-
-    ########## Extract Entities
-    combined_doc = extract_entities_from_judgment_text(txt,nlp_judgment,nlp_preamble)
-
-    ########### show the entities
-    extracted_ent_labels = list(set([i.label_ for i in combined_doc.ents]))
-    colors = {'COURT':"#bbabf2",'PETITIONER': "#f570ea", "RESPONDENT": "#cdee81",'JUDGE':"#fdd8a5","LAWYER":"#f9d380",
-              'WITNESS':"violet","STATUTE":"#faea99","PROVISION":"yellow",'CASE_NUMBER':"#fbb1cf","PRECEDENT":"#fad6d6",
-              'POLICE_STATION':"#b1ecf7",'OTHER_ORG':"#b0f6a2"}
-    options = {"ents": extracted_ent_labels, "colors": colors}
-
-    displacy.serve(combined_doc, style='ent',port=8080,options=options)
-
-```
 
 ## Acknowledgements
 This work is part of [OpenNyAI](https://opennyai.org/) mission which is funded by [EkStep](https://ekstep.org/) and [Agami](https://agami.in/). 
