@@ -122,9 +122,10 @@ combined_doc = extract_entities_from_judgment_text(judgment_text,legal_nlp,pream
 
 ########### visualize the entities
 extracted_ent_labels = list(set([i.label_ for i in combined_doc.ents]))
-colors = {'COURT':"#bbabf2",'PETITIONER': "#f570ea", "RESPONDENT": "#cdee81",'JUDGE':"#fdd8a5","LAWYER":"#f9d380",
-          'WITNESS':"violet","STATUTE":"#faea99","PROVISION":"yellow",'CASE_NUMBER':"#fbb1cf","PRECEDENT":"#fad6d6",
-          'POLICE_STATION':"#b1ecf7",'OTHER_PERSON':"#b0f6a2"}
+colors = {'COURT': "#bbabf2", 'PETITIONER': "#f570ea", "RESPONDENT": "#cdee81", 'JUDGE': "#fdd8a5",
+          "LAWYER": "#f9d380", 'WITNESS': "violet", "STATUTE": "#faea99", "PROVISION": "yellow",
+          'CASE_NUMBER': "#fbb1cf", "PRECEDENT": "#fad6d6", 'DATE': "#b1ecf7", 'OTHER_PERSON': "#b0f6a2",
+          'ORG':'#a57db5','GPE':'#7fdbd4'}
 options = {"ents": extracted_ent_labels, "colors": colors}
 
 
