@@ -33,28 +33,29 @@ Taking most cited judgments from a given court would result in bias in certain t
 For each of the court and the case type combination mentioned above, an Indiankanoon query was created with with key words and court filters. Top most cited results from each query was taken. All such results were combined to produce final result. Duplicate judgments obtained in the results were dropped. 
 The final distribution of case type and court for duration 1950 to 2017 is as below.
 
-| **Court\_Name**               | **Civil** | **Constitution** | **Criminal** | **Financial** | **Industrial&Labour** | **Land&Property** | **Motorvehicles** | **Tax** | **total** |
+
+| **Court\_Name\_Normalized**               | **Civil** | **Constitution** | **Criminal** | **Financial** | **Industrial&Labour** | **Land&Property** | **Motorvehicles** | **Tax** | **total** |
 | ----------------------------------------- | --------- | ---------------- | ------------ | ------------- | --------------------- | ----------------- | ----------------- | ------- | --------- |
 | **Supreme Court of India**                | 200       | 200              | 200          | 200           | 200                   | 200               | 200               | 200     | 1600      |
-| **Delhi High Court**                      | 100       | 100              | 100          | 100           | 100                   | 100               | 100               | 100     | 800       |
+| **Delhi High Court**                      | 100       | 100              | 99           | 100           | 100                   | 100               | 100               | 100     | 799       |
 | **Bombay High Court**                     | 100       | 100              | 100          | 87            | 100                   | 53                | 100               | 100     | 740       |
 | **Madras High Court**                     | 100       | 100              | 100          | 35            | 100                   | 100               | 100               | 100     | 735       |
-| **Karnataka High Court**                  | 100       | 100              | 100          | 53            | 100                   | 80                | 100               | 99      | 732       |
 | **Patna High Court**                      | 100       | 100              | 0            | 116           | 100                   | 111               | 100               | 100     | 727       |
-| **Rajasthan High Court**                  | 100       | 100              | 100          | 112           | 58                    | 76                | 71                | 100     | 717       |
+| **Rajasthan High Court**                  | 100       | 100              | 100          | 110           | 58                    | 70                | 71                | 100     | 709       |
 | **Madhya Pradesh High Court**             | 96        | 100              | 100          | 77            | 88                    | 91                | 55                | 100     | 707       |
+| **Karnataka High Court**                  | 95        | 99               | 97           | 51            | 90                    | 79                | 96                | 97      | 704       |
 | **Calcutta High Court**                   | 70        | 100              | 79           | 72            | 17                    | 164               | 100               | 100     | 702       |
 | **Kerala High Court**                     | 0         | 100              | 100          | 94            | 100                   | 100               | 100               | 100     | 694       |
 | **Punjab-Haryana High Court**             | 100       | 100              | 100          | 77            | 53                    | 76                | 83                | 100     | 689       |
 | **Gujarat High Court**                    | 79        | 100              | 100          | 98            | 14                    | 86                | 100               | 100     | 677       |
-| **Delhi District Court**                  | 100       | 100              | 91           | 98            | 63                    | 100               | 100               | 0       | 652       |
+| **Delhi District Court**                  | 99        | 100              | 91           | 98            | 63                    | 100               | 100               | 0       | 651       |
 | **Allahabad High Court**                  | 100       | 100              | 100          | 40            | 22                    | 74                | 100               | 100     | 636       |
 | **Andhra High Court**                     | 100       | 100              | 100          | 75            | 18                    | 38                | 100               | 86      | 617       |
 | **Orissa High Court**                     | 0         | 0                | 0            | 77            | 0                     | 89                | 0                 | 0       | 166       |
 | **Income Tax Appellate Tribunal**         | 0         | 0                | 0            | 0             | 0                     | 0                 | 0                 | 80      | 80        |
 | **Himachal Pradesh High Court**           | 0         | 0                | 0            | 18            | 0                     | 44                | 0                 | 0       | 62        |
 | **Gauhati High Court**                    | 0         | 0                | 0            | 39            | 0                     | 16                | 0                 | 0       | 55        |
-| **Bangalore District Court**              | 0         | 0                | 9            | 2             | 37                    | 0                 | 0                 | 0       | 48        |
+| **Bangalore District Court**              | 0         | 0                | 8            | 2             | 36                    | 0                 | 0                 | 0       | 46        |
 | **Jharkhand High Court**                  | 0         | 0                | 0            | 24            | 0                     | 18                | 0                 | 0       | 42        |
 | **Chattisgarh High Court**                | 0         | 0                | 0            | 16            | 0                     | 16                | 0                 | 0       | 32        |
 | **Jammu & Kashmir High Court**            | 0         | 0                | 0            | 15            | 0                     | 16                | 0                 | 0       | 31        |
@@ -65,5 +66,4 @@ The final distribution of case type and court for duration 1950 to 2017 is as be
 | **Tripura High Court**                    | 0         | 0                | 0            | 0             | 0                     | 2                 | 0                 | 0       | 2         |
 | **Custom, Excise & Service Tax Tribunal** | 0         | 0                | 0            | 0             | 0                     | 0                 | 0                 | 1       | 1         |
 
-
-The data during 1950 to 2017 can be found [here](https://storage.googleapis.com/indianlegalbert/OPEN_SOURCED_FILES/Representative_Judgements_Sample/representative_judgement_sample.csv).
+The data during 1950 to 2017 can be found [here](https://storage.googleapis.com/indianlegalbert/OPEN_SOURCED_FILES/Representative_Judgements_Sample/representative_judgement_sample.csv). It has IndianKanoon URL and full text of the judgment.
