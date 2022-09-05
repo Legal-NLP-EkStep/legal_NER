@@ -75,7 +75,7 @@ Install spacy pretrained model
 
 ```pip install https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.2.0/en_core_web_sm-3.2.0-py3-none-any.whl```
 
-load spacy model into the memory
+Use pretrained model to find all the entities in a given judgement.
 
 ```python 
 import spacy
@@ -101,6 +101,8 @@ options = {"ents": extracted_ent_labels, "colors": colors}
 displacy.serve(combined_doc, style='ent',port=8080,options=options)
 ```
 
+## 5. Evaluation
+Evaluation portal will be made available soon.
 
 ## Acknowledgements
 This work is part of [OpenNyAI](https://opennyai.org/) mission which is funded by [EkStep](https://ekstep.org/) and [Agami](https://agami.in/). 
