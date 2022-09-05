@@ -31,37 +31,6 @@ This code can extract following named entities from Indian Court judgments.
 
 More detailed definitions with examples can be found [here](https://docs.google.com/presentation/d/e/2PACX-1vSpWE_Qk9X_wBh7xJWPyYcWcME3ZBh_HmqeZOx58oMLyJSi0Tn0-JMWKI-HsQIRuUTbQHPql6MlU7OS/pub?start=false&loop=false&delayms=3000)
 ## 3. Data
-### 3.1 Representative sample of Indian Court Judgments 
-A representative sample of Indian court judgment was created by taking most cited IndianKanoon judgments controlling for court and case type. Court were stratefied as per following table.
-<center>
- 
-| Court Category | Percentage | Covered Courts|
-|:--------------:|:--------------------:| --------------------------------|
-| Supreme Court | 20 | Supreme court | Supreme Court | 
-| High Courts | 70 | 5% from each of following 14 high courts: Bombay, Madras, Gujrat, Delhi, Punjab- Haryana, Karnataka, Rajasthan, Telengana, Allahabad, Kerala, Madhya Pradesh, Calcutta, Patna, Andhra | 
-| District courts | 5 | Delhi district ,Banglore district |
-| Tribunals | 5 | CEGAT , ITAT, STATE TAXATION, CESTAT, Copyright Board, IPAB, CLB, NCLAT, Debt Recovery, SAT |
- 
- </center>
-
-Taking most cited judgments from a given court would result in bias in certain types of cases (E.g. criminal cases). Hence it is needed to control for types cases to consider the variety of judgements. So we created following 8 types of cases (tax, criminal ,civil, Motor Vehicles, Land & Property, Industrial & Labour, Constitution, Financial) which are most frequently present. Classification of each judgement into one these 8 types is complex task. We have used naive approach to use act names for assigning a judgment to a case type. E.g. if judgment mentions "tax act" then most probably it belongs to "tax" category. Following are the key act names were used in the Indian Kanoon search queries.  
-<center>
-
-| Case Type | Percentage | Key Act keywords|
-|:--------------:|:--------------------:| --------------------------------|
-| Tax | 20 |  tax act , excise act, customs act, goods and services act etc. |
-| Criminal | 20 | IPC, penal code, criminal procedure etc. |
-| Civil | 10 | civil procedure, family courts, marriage act, wakf act etc. |
-| Motor Vehicles | 10 | motor vehicles act, mv act, imv act etc. |
-| Land \& Propery | 10 | land acqusition act, succession act, rent control act etc. |
-| Industrial \& Labour | 10 | companies act, industrial disputes act, compensation act etc.|
-| Constitution | 10 | constitution |
-| Financial | 10 | negotiable instruments act, sarfaesi act, foreign exchange regulation act etc.|
-
-  </center>
- For each of the court and the case type combination mentioned above, an Indiankanoon query was created with with key words and court filters. Top most cited results from each query was taken. All such results were combined to produce final result. Duplicate judgments obtained in the results were dropped. 
-
-### 3.2 Training & Test Data
 Training data is available [here](https://storage.googleapis.com/indianlegalbert/OPEN_SOURCED_FILES/NER/NER_TRAIN.zip).
 
 Judgements obtained via above mentioned methodology during the time period from 1950 to 2017 was used to take sentences for annotation of training data. Judgements from 2017 to 2021 were used to select test data judgments. For preannotations, we used spacy pretrained model(en_core_web_trf) with custom rules to predict the legal named entities. This model was used to select sentences which are likely to contain the legal named entities. We also tried to reduce class imbalance across the entities by upsampling the rare entities. The preannotated sentences were annotated by the legal experts and data scientists at OpenNyAI. 
