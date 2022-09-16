@@ -2,12 +2,12 @@
 import spacy
 from spacy import displacy
 import re
-from data_preparation import seperate_and_clean_preamble,get_text_from_indiankanoon_url
+from data_preparation import seperate_and_clean_preamble,get_text_from_indiankanoon_url,get_sentence_docs
 from spacy.tokens import Span
 import time
 
 
-def extract_entities_from_judgment_text(txt,legal_nlp,nlp_preamble_splitting):
+def extract_entities_from_judgment_text(txt,legal_nlp,nlp_preamble_splitting,text_type):
     ######### Seperate Preamble and judgment text
     seperation_start_time = time.time()
     preamble_text,preamble_end= seperate_and_clean_preamble(txt,nlp_preamble_splitting)
@@ -18,8 +18,14 @@ def extract_entities_from_judgment_text(txt,legal_nlp,nlp_preamble_splitting):
     judgement_text=txt[preamble_end:]
     #####  replace new lines in middle of sentence with spaces.
     judgement_text = re.sub(r'(\w[ -]*)(\n+)', r'\1 ', judgement_text)
-    doc_judgment=legal_nlp(judgement_text)
+    judgment_doc=nlp_preamble_splitting(judgement_text)
+    if text_type=='doc':
+        doc_judgment=legal_nlp(judgement_text)
+    else:
+        doc_judgment=get_sentence_docs(judgment_doc,legal_nlp)
+
     print("Creating doc for jdgement  took " + str(time.time() - judgement_start_time))
+    print(len(doc_judgment.ents))
 
     ######### process preamable
     preamble_start_time = time.time()
@@ -39,10 +45,10 @@ if __name__ == "__main__":
 
     txt = get_text_from_indiankanoon_url(indiankanoon_url)
 
-    legal_nlp = spacy.load('/Users/prathamesh/tw_projects/OpenNyAI/data/NER/train/exp_NO4/trf/Combined/model-best') ## path of trained model files
+    legal_nlp = spacy.load('/model-best') ## path of trained model files
     preamble_spiltting_nlp = spacy.load('en_core_web_sm') #### only for splitting the preamble and judgment when keywords are not found
     ########## Extract Entities
-    combined_doc = extract_entities_from_judgment_text(txt,legal_nlp,preamble_spiltting_nlp)
+    combined_doc = extract_entities_from_judgment_text(txt,legal_nlp,preamble_spiltting_nlp,text_type='sent')
 
     ########### show the entities
     extracted_ent_labels = list(set([i.label_ for i in combined_doc.ents]))

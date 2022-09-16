@@ -251,3 +251,13 @@ def get_text_from_indiankanoon_url( url):
                 judgment_txt = re.sub(pattern_dict['pattern'], "", judgment_txt)
 
         return judgment_txt.strip()
+
+def get_sentence_docs(doc_judgment,nlp_judgment):
+    sentences=[sent.text for sent in doc_judgment.sents]
+    docs=[]
+    for doc in nlp_judgment.pipe(sentences):
+        docs.append(doc)
+    combined_docs=spacy.tokens.Doc.from_docs(docs)
+    return combined_docs
+
+

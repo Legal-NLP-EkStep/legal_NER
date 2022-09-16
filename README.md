@@ -78,6 +78,16 @@ Install spacy pretrained model
 
 Use pretrained model to find all the entities in a given judgement.
 
+Entities can be extracted in two ways:
+
+1.Passing the whole judgment : Whole judgment is passed through the model and entities are extracted.
+It is more efficient but extracts fewer entities as compared to other method.Use text_type='doc' for this method
+
+2.Passing sentence by sentence:Each sentence is individually passed through model and entities are extracted.
+It is less efficient but extracts more entities than passing the whole judgment.Use text_type='sent' for this method.
+
+
+
 ```python 
 import spacy
 from data_preparation import get_text_from_indiankanoon_url
@@ -88,7 +98,8 @@ legal_nlp=spacy.load('en_legal_ner_trf')
 judgment_text = get_text_from_indiankanoon_url('https://indiankanoon.org/doc/542273/')
 
 preamble_spiltting_nlp = spacy.load('en_core_web_sm')
-combined_doc = extract_entities_from_judgment_text(judgment_text,legal_nlp,preamble_spiltting_nlp)
+text_type='doc'
+combined_doc = extract_entities_from_judgment_text(judgment_text,legal_nlp,preamble_spiltting_nlp,text_type)
 
 ########### visualize the entities
 extracted_ent_labels = list(set([i.label_ for i in combined_doc.ents]))
