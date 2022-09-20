@@ -81,10 +81,10 @@ Use pretrained model to find all the entities in a given judgement.
 Entities can be extracted in two ways:
 
 1.Passing the whole judgment : Whole judgment is passed through the model and entities are extracted.
-It is more efficient but extracts fewer entities as compared to other method.Use text_type='doc' for this method
+It take less time to run but can miss entities as compared to 'sent' method. Use text_type='doc' for this method.
 
 2.Passing sentence by sentence:Each sentence is individually passed through model and entities are extracted.
-It is less efficient but extracts more entities than passing the whole judgment.Use text_type='sent' for this method.
+It takes more time to run but more accurate than passing the whole judgment. Use text_type='sent' for this method.
 
 
 
