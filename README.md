@@ -70,7 +70,7 @@ Baseline model was trained using [spacy-transformers](https://spacy.io/usage/tra
 
 The trained model can be installed using
 
-```pip install https://storage.googleapis.com/indianlegalbert/OPEN_SOURCED_FILES/NER/python_wheel/en_legal_ner_trf-3.2.0-py3-none-any.whl```
+```pip install https://huggingface.co/opennyaiorg/en_legal_ner_trf/resolve/main/en_legal_ner_trf-any-py3-none-any.whl```
 
 Install spacy pretrained model 
 
