@@ -41,11 +41,10 @@ def extract_entities_from_judgment_text(txt,legal_nlp,nlp_preamble_splitting,tex
 
 if __name__ == "__main__":
     indiankanoon_url = 'https://indiankanoon.org/doc/150051/'
-    #indiankanoon_url = 'https://indiankanoon.org/doc/639803/'
 
     txt = get_text_from_indiankanoon_url(indiankanoon_url)
 
-    legal_nlp = spacy.load('/model-best') ## path of trained model files
+    legal_nlp = spacy.load('en_legal_ner_trf') ## path of trained model files
     preamble_spiltting_nlp = spacy.load('en_core_web_sm') #### only for splitting the preamble and judgment when keywords are not found
     ########## Extract Entities
     combined_doc = extract_entities_from_judgment_text(txt,legal_nlp,preamble_spiltting_nlp,text_type='sent')
