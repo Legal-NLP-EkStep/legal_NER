@@ -15,8 +15,7 @@ This code can extract following named entities from Indian Court judgments.
 | COURT          | Preamble, Judgment | Name of the court which has delivered the current judgement if extracted from Preamble. Name of any court mentioned if extracted from judgment sentences. |
 | PETITIONER  | Preamble, Judgment | Name of the petitioners / appellants /revisionist  from current case                                                                                      |
 | RESPONDENT | Preamble, Judgment | Name of the respondents / defendents /opposition from current case                                                                                        |
-| JUDGE |      Premable      | Name of the judges from current case                                                                                                                      |
-| JUDGE |      Judgment      | Name of the judges of the current as well as previous cases                                                                                               |
+| JUDGE |      Premable, Judgment      | Name of the judges from current case  if extracted from preamble. Name of the judges of the current as well as previous cases if extracted from judgment sentences.       |                                                                                        |
 | LAWYER |      Preamble      | Name of the lawyers from both the parties                                                                                                                 |
 | DATE |      Judgment      | Any date mentioned in the judgment                                                                                                                        |
 | ORG |      Judgment      | Name of organizations mentioned in text apart from court. E.g. Banks, PSU, private companies, police stations, state govt etc.                            |
