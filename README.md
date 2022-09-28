@@ -117,8 +117,12 @@ It take less time to run but can miss entities as compared to 'sent' method. Use
 b.Passing sentence by sentence:Each sentence is individually passed through model and entities are extracted.
 It takes more time to run but more accurate than passing the whole judgment. Use run_type='sent' for this method.
 
+## 5. Google Colab Examples
 
-## 5. Evaluation
+| Description               | Link  |
+|---------------------------|-------|
+| Run Inference          | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/15KEXbcCBXsqJksu7j2hwTyMp5cT9852y?usp=sharing) |
+## 6. Evaluation
 Evaluation portal will be made available soon.
 
 ## Acknowledgements
