@@ -260,4 +260,22 @@ def get_sentence_docs(doc_judgment,nlp_judgment):
     combined_docs=spacy.tokens.Doc.from_docs(docs)
     return combined_docs
 
-
+def get_json_from_spacy_doc(doc):
+    import uuid
+    uid = uuid.uuid4()
+    id = "LegalNER_" + str(uid.hex)
+    output = {'id': id, 'annotations': [{'result': []}], 'data': {'text': doc.text}}
+    for ent in doc.ents:
+        import uuid
+        uid = uuid.uuid4()
+        output['annotations'][0]['result'].append(copy.deepcopy({
+                    "value": {
+                        "start": ent.start_char,
+                        "end": ent.end_char,
+                        "text": ent.text,
+                        "labels": [ent.label_],
+                        "id": uid.hex
+                    }
+                }))
+    return output        
+         
