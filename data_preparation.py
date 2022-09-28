@@ -1,6 +1,6 @@
 import re
 from urllib.request import urlopen, Request
-
+import copy
 from bs4 import BeautifulSoup as soup, Tag
 import spacy
 def remove_unwanted_text(text):
