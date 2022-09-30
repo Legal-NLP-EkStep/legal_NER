@@ -63,8 +63,8 @@ Baseline model was trained using [spacy-transformers](https://spacy.io/usage/tra
 The trained model can be used as follows
 1. Create new virtual environment
 ```shell
-python3 -m legal_NER /path/to/new/virtual/environment
-source /path/to/new/virtual/environment/legal_NER/bin/activate
+python3 -m venv /path/to/new/virtual/environment
+source /path/to/new/virtual/environment/bin/activate
 ```
 2. Install the trained model
 
