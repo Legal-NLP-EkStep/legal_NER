@@ -33,10 +33,17 @@ More detailed definitions with examples can be found [here](https://docs.google.
 ## 3. Data
 Training data is available [here](https://storage.googleapis.com/indianlegalbert/OPEN_SOURCED_FILES/NER/NER_TRAIN.zip).
 
+### 3.1 Raw Text used for Annotation
 Judgements obtained via [representative sample genration method](https://github.com/Legal-NLP-EkStep/legal_NER/tree/main/representative_judgments_sample) during the time period from 1950 to 2017 were used to take sentences for annotation of training data. Judgements from 2017 to 2021 were used to select test data judgments. For preannotations, we used spacy pretrained model(en_core_web_trf) with custom rules to predict the legal named entities. This model was used to select sentences which are likely to contain the legal named entities. We also tried to reduce class imbalance across the entities by upsampling the rare entities. The preannotated sentences were annotated by the legal experts and data scientists at OpenNyAI. 
 
 Since the entities present in the preamble and judgment are different, 2 seperate files are provided for training data. There are 9435 judgement sentences and 1560 preambles. 
 Entity Counts in Judgment train data
+
+### 3.3 Nature of Entities
+Document level context was not used during annotation. Complete preambles were presented for the annotations. Individual sentences from judgment were provided for the NER annotations. The idea was to look at an independent sentence and extract entities that could be inferred from that sentence. 
+Flat entities were considered for annotation i.e. "Bank of China" wer considered as ORG entity and "China" were not be marked as GPE inside this entity. 
+
+### 3.2 Entity Stats
 
 | Entity                                          | Judgment Count | Preamble Count |
 |-------------------------------------------------------|----------------|----------------|
@@ -58,7 +65,8 @@ Entity Counts in Judgment train data
 
 
 ## 4. Using Legal NER model
-Baseline model was trained using [spacy-transformers](https://spacy.io/usage/training) with roberta-base. The trained model was tested on test data and following are the results.
+We have trained an AI model which uses transition based dependency parser on top of the roberta-base model.
+Baseline model was trained using [spacy-transformers](https://spacy.io/usage/training). The trained model was tested on test data and following are the results.
 
 The trained model can be used as follows
 1. Create new virtual environment
