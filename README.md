@@ -103,7 +103,8 @@ judgment_text = get_text_from_indiankanoon_url('https://indiankanoon.org/doc/542
 
 preamble_spiltting_nlp = spacy.load('en_core_web_sm')
 run_type='sent' ###  trade off between accuracy and runtime
-combined_doc = extract_entities_from_judgment_text(judgment_text,legal_nlp,preamble_spiltting_nlp,run_type)
+do_postprocessing=True 
+combined_doc = extract_entities_from_judgment_text(judgment_text,legal_nlp,preamble_spiltting_nlp,run_type,do_postprocessing)
 
 ########### visualize the entities
 extracted_ent_labels = list(set([i.label_ for i in combined_doc.ents]))
@@ -123,6 +124,32 @@ It take less time to run but can miss entities as compared to 'sent' method. Use
 
 b.Passing sentence by sentence:Each sentence is individually passed through model and entities are extracted.
 It takes more time to run but more accurate than passing the whole judgment. Use run_type='sent' for this method.
+
+To perform postprocessing on the extracted entitities specify do_potprocessing=True.
+
+The postprocessing is done on these entities:
+
+1.Precedents:Same precedent is written in multiple forms in a judgment eg. with citation,without
+citation,only petitioner's name supra etc.After postprocessing,all the precedents referring to the same case
+are  clustered together and an extension 'precedent_clusters' is
+added to the doc which is a dict where the keys are the head of the cluster(longest precedent) and value
+is a list of all the precedents in that cluster.To access the list,use
+```
+doc._.precedent_clusters
+```
+2.Provision-Statute:Every provision should have an associated statute but sometimes the 
+corresponding statutes are not mentioned explicitly in the judgment.Postprocessing contains a
+set of rules to identify statute for each provision and the extension 'provision_statute_clusters'
+is added to the doc which is a list of tuples,each tuple is a provision-statute pair.It can be
+used by:
+
+```
+doc._.provision_statute_clusters
+```
+
+
+
+
 
 ## 5. Google Colab Examples
 
