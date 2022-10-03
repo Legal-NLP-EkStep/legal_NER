@@ -102,6 +102,7 @@ def guess_preamble_end(truncated_txt, nlp):
                 break
             else:
                 successive_preamble_pattern_breaks = 0
+
     return preamble_end
 
 def seperate_and_clean_preamble(txt,preamble_splitting_nlp):
