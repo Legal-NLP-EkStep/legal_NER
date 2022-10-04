@@ -3,7 +3,7 @@ import spacy
 from spacy import displacy
 import re
 from data_preparation import seperate_and_clean_preamble,get_text_from_indiankanoon_url,get_sentence_docs
-from postprocessing_utils import postprocessing
+from postprocessing_utils import postprocessing,get_csv
 from spacy.tokens import Span
 import time
 
@@ -41,6 +41,8 @@ def extract_entities_from_judgment_text(txt,legal_nlp,nlp_preamble_splitting,tex
         combined_doc=postprocessing(combined_doc)
     return combined_doc
 
+
+
 if __name__ == "__main__":
     indiankanoon_url = 'https://indiankanoon.org/doc/150051/'
 
@@ -53,6 +55,9 @@ if __name__ == "__main__":
 
     ########### show the entities
     extracted_ent_labels = list(set([i.label_ for i in combined_doc.ents]))
+
+    ###To save results as csv
+    get_csv(str(indiankanoon_url),combined_doc,save_path='')
 
     colors = {'COURT': "#bbabf2", 'PETITIONER': "#f570ea", "RESPONDENT": "#cdee81", 'JUDGE': "#fdd8a5",
               "LAWYER": "#f9d380", 'WITNESS': "violet", "STATUTE": "#faea99", "PROVISION": "yellow",

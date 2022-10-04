@@ -125,6 +125,11 @@ It take less time to run but can miss entities as compared to 'sent' method. Use
 b.Passing sentence by sentence:Each sentence is individually passed through model and entities are extracted.
 It takes more time to run but more accurate than passing the whole judgment. Use run_type='sent' for this method.
 
+## 5. Postprocessing
+Since the document level context was not used duiring annotation,it is important to
+capture the document level context while inference.This can be done via postprocessing using
+some rules.
+
 To perform postprocessing on the extracted entitities specify do_potprocessing=True.
 
 The postprocessing is done on these entities:
@@ -137,26 +142,47 @@ is a list of all the precedents in that cluster.To access the list,use
 ```
 doc._.precedent_clusters
 ```
+For example.
+ [{Madhu Limaye v. State of Mahrashtra: [Madhu Limaye v. State of Mahrashtra, Madhu Limaye v. State of Maharashtra, Madhu Limaye, Madhu Limaye, Madhu Limaye]}]
+ 
+
 2.Provision-Statute:Every provision should have an associated statute but sometimes the 
 corresponding statutes are not mentioned explicitly in the judgment.Postprocessing contains a
 set of rules to identify statute for each provision and the extension 'provision_statute_clusters'
-is added to the doc which is a list of tuples,each tuple is a provision-statute pair.It can be
+is added to the doc which is a list of tuples,each tuple contains provision-statute-normalised provision text eg. (362,IPC,'Section 362') .It can be
 used by:
 
 ```
 doc._.provision_statute_clusters
 ```
+For example.
+[(Section 369, Crpc, 'Section 369'), (Section 424, Crpc, 'Section 424')]
+
+3.Other person/Org: Same entities can be tagged with different classes in different sentences of
+the same judgment due to sentence level context.For eg. 'Amit Kumar' can be  a petitioner
+in the preamble but later in the judgment is marked as 'other_person'.So,we reconcile these entities
+based on their relative importance i.e. 'Amit Kumar' will be marked as petitioner in the
+whole judgment.
+
+## 6. Save as csv
+To save the entity information as csv,use the followinf function
+
+```
+get_csv(filename,doc,save_path='')
+```
+It will take the name of the file ,the created nlp doc  and path to save csv as input.
+It will write a csv where each row corresponds to an entity and has columns 
+file name,entitiy text,labels and normalised entities.For eg,
+
+![img.png](img.png)
 
 
-
-
-
-## 5. Google Colab Examples
+## 7. Google Colab Examples
 
 | Description               | Link  |
 |---------------------------|-------|
 | Run Inference          | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/15KEXbcCBXsqJksu7j2hwTyMp5cT9852y?usp=sharing) |
-## 6. Evaluation
+## 8. Evaluation
 Evaluation portal will be made available soon.
 
 ## Acknowledgements

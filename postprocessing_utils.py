@@ -1,6 +1,7 @@
 import re
 import nltk
 import spacy
+import pandas as pd
 
 
 def get_entities(doc, labels):
@@ -576,23 +577,68 @@ def seperate_provision(doc,clusters):
         section = re.split(',|and|/|or', provision.text)
         start=provision.start_char
         pro=provision.text
+        keyword = section[0].split(' ')[0]
+        if keyword[-1]=='s':
+            keyword=keyword[:-1]
+        combined=False
+        for sec in section:
+            if not sec.strip()[0].isalpha() and not sec.strip()[0].isnumeric():
+                combined=True
+                break
 
-        if len(section)>1:
-            for sec in section:
+
+        if len(section)>1 and not combined:
+            for sec in section :
+
+
 
                     ind=pro.find(sec)
-                    sect=doc.char_span(start+ind, start+ ind+len(sec), "sta",alignment_mode='expand')
+                    sect=doc.char_span(start+ind, start+ ind+len(sec), "PROVISION",alignment_mode='expand')
                     pro=pro[ ind+len(sec):]
                     start=start+ind+len(sec)
-                    new_clusters.append((sect,statute))
+                    if not sec.strip()[0].isalpha():
+                        new_clusters.append((sect,statute,keyword+' '+sect.text))
+                    else:
+                        new_clusters.append((sect, statute,keyword +' '+' '.join(sect.text.split(' ')[1:])))
 
 
 
         else:
-            new_clusters.append(cluster)
+            new_clusters.append((cluster[0],cluster[1],cluster[0].text))
     return new_clusters
 
 
+def get_csv(f_name,doc,save_path):
+    df = pd.DataFrame(columns=['file_name', 'entity', 'label', 'normalised_entities'])
+    file_name=[]
+    entity=[]
+    label=[]
+    normalised_entities=[]
+
+    for pro_ent in doc._.provision_statute_clusters:
+        file_name.append(f_name)
+        entity.append(pro_ent[0])
+        label.append('PROVISION')
+        normalised_entities.append(pro_ent[2]+' of '+pro_ent[1].text)
+    for pre_head in doc._.precedent_clusters.keys():
+        file_name.append(f_name)
+        for ent in doc._.precedent_coref[pre_head]:
+            entity.append(ent)
+            label.append('PRECEDENT')
+            normalised_entities.append(pre_head.text)
+
+    for ent in doc.ents:
+        if ent not in  entity:
+            file_name.append(f_name)
+            entity.append(ent)
+            label.append(ent.label_)
+            normalised_entities.append('')
+    entity_text=[ent.text for ent in entity]
+    df['file_name']=file_name
+    df['entity']=entity_text
+    df['label']=label
+    df['normalised_entities']=normalised_entities
+    df.to_csv(save_path)
 
 def postprocessing(doc):
     precedent_clusters = precedent_coref_resol(doc)
