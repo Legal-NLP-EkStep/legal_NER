@@ -103,8 +103,8 @@ judgment_text = get_text_from_indiankanoon_url('https://indiankanoon.org/doc/542
 
 preamble_spiltting_nlp = spacy.load('en_core_web_sm')
 run_type='sent' ###  trade off between accuracy and runtime
-do_postprocessing=True 
-combined_doc = extract_entities_from_judgment_text(judgment_text,legal_nlp,preamble_spiltting_nlp,run_type,do_postprocessing)
+do_postprocess=True 
+combined_doc = extract_entities_from_judgment_text(judgment_text,legal_nlp,preamble_spiltting_nlp,run_type,do_postprocess)
 
 ########### visualize the entities
 extracted_ent_labels = list(set([i.label_ for i in combined_doc.ents]))
