@@ -57,7 +57,7 @@ if __name__ == "__main__":
     extracted_ent_labels = list(set([i.label_ for i in combined_doc.ents]))
 
     ###To save results as csv
-    get_csv(str(indiankanoon_url),combined_doc,save_path='')
+    #get_csv(str(indiankanoon_url),combined_doc,save_path='')
 
     colors = {'COURT': "#bbabf2", 'PETITIONER': "#f570ea", "RESPONDENT": "#cdee81", 'JUDGE': "#fdd8a5",
               "LAWYER": "#f9d380", 'WITNESS': "violet", "STATUTE": "#faea99", "PROVISION": "yellow",
