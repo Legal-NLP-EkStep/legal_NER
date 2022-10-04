@@ -8,7 +8,7 @@ from spacy.tokens import Span
 import time
 
 
-def extract_entities_from_judgment_text(txt,legal_nlp,nlp_preamble_splitting,text_type,do_postprocess):
+def extract_entities_from_judgment_text(txt,legal_nlp,nlp_preamble_splitting,text_type,do_postprocessing):
     ######### Seperate Preamble and judgment text
     seperation_start_time = time.time()
     preamble_text,preamble_end= seperate_and_clean_preamble(txt,nlp_preamble_splitting)
@@ -51,7 +51,7 @@ if __name__ == "__main__":
     legal_nlp = spacy.load('en_legal_ner_trf') ## path of trained model files
     preamble_spiltting_nlp = spacy.load('en_core_web_sm') #### only for splitting the preamble and judgment when keywords are not found
     ########## Extract Entities
-    combined_doc = extract_entities_from_judgment_text(txt,legal_nlp,preamble_spiltting_nlp,text_type='sent',do_postprocess=True)
+    combined_doc = extract_entities_from_judgment_text(txt,legal_nlp,preamble_spiltting_nlp,text_type='sent',do_postprocessing=True)
 
     ########### show the entities
     extracted_ent_labels = list(set([i.label_ for i in combined_doc.ents]))

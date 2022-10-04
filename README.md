@@ -130,7 +130,7 @@ Since the document level context was not used duiring annotation,it is important
 capture the document level context while inference.This can be done via postprocessing using
 some rules.
 
-To perform postprocessing on the extracted entitities specify do_potprocessing=True.
+To perform postprocessing on the extracted entitities specify do_postprocessing=True.
 
 The postprocessing is done on these entities:
 
