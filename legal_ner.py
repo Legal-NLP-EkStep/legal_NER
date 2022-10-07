@@ -44,7 +44,7 @@ def extract_entities_from_judgment_text(txt,legal_nlp,nlp_preamble_splitting,tex
 
 
 if __name__ == "__main__":
-    indiankanoon_url = 'https://indiankanoon.org/doc/150051/'
+    indiankanoon_url = 'https://indiankanoon.org/doc/11757180/'
 
     txt = get_text_from_indiankanoon_url(indiankanoon_url)
 
