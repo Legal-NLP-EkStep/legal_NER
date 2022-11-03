@@ -1,4 +1,5 @@
 # legal_NER
+#### For easy usage of all available OpenNyai models refer to our [OpenNyai Repo](https://github.com/OpenNyAI/Opennyai)
 #### Try our models on hugging face [en_legal_ner_trf](https://huggingface.co/opennyaiorg/en_legal_ner_trf) and [en_legal_ner_sm](https://huggingface.co/opennyaiorg/en_legal_ner_sm)
 ## 1. Why Seperate NER for Indian Court Judgments?
 Named Entities Recognition is commonly studied problem in Natural Language Processing and many pre-trained models are publicly available. However legal documents have peculiar named entities like names of petitioner, respondent, court, statute, provision, precedents,  etc. These entity types are not recognized by standard Named Entity Recognizer like spacy. Hence there is a need to develop a Legal NER model. But ther are no publicly available annotated datasets for this task for Indian courts. Due to peculiarity of Indian legal processes and terminoligies used, it is important to develop seperate legal NER for Indian court judgment texts.
