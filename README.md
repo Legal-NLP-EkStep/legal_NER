@@ -95,6 +95,8 @@ marked as GPE inside this entity.
 
 ## 4. Train your NER model
 
+For training we convert the data given in json format to spacy format and then train our model
+
 ```bash
 python -m spacy train ./training/config.cfg --output ./output --paths.train ./train.spacy --paths.dev ./dev.spacy
 ```
