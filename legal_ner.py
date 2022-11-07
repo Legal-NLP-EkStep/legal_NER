@@ -6,7 +6,8 @@ from data_preparation import seperate_and_clean_preamble,get_text_from_indiankan
 from postprocessing_utils import postprocessing,get_csv
 from spacy.tokens import Span
 import time
-
+from postprocessing_utils import get_unique_precedent_count,get_unique_statute_count,get_unique_provision_count
+from wasabi import msg
 
 def extract_entities_from_judgment_text(txt,legal_nlp,nlp_preamble_splitting,text_type,do_postprocess):
     ######### Seperate Preamble and judgment text
@@ -37,8 +38,13 @@ def extract_entities_from_judgment_text(txt,legal_nlp,nlp_preamble_splitting,tex
     combining_start_time = time.time()
     combined_doc = spacy.tokens.Doc.from_docs([doc_preamble, doc_judgment])
     print("Combining took " + str(time.time() - combining_start_time))
-    if do_postprocess:
-        combined_doc=postprocessing(combined_doc)
+
+    try:
+        if do_postprocess:
+            combined_doc=postprocessing(combined_doc)
+    except:
+        msg.warn(
+            'There was some issue while performing postprocessing, skipping postprocessing...')
     return combined_doc
 
 
@@ -64,6 +70,7 @@ if __name__ == "__main__":
               'CASE_NUMBER': "#fbb1cf", "PRECEDENT": "#fad6d6", 'DATE': "#b1ecf7", 'OTHER_PERSON': "#b0f6a2",
               'ORG': '#a57db5', 'GPE': '#7fdbd4'}
     options = {"ents": extracted_ent_labels, "colors": colors}
+    import pdb;pdb.set_trace()
 
 
     displacy.serve(combined_doc, style='ent',port=8080,options=options)
