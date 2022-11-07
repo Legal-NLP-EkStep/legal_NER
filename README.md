@@ -1,16 +1,28 @@
 # legal_NER
+
 #### For easy usage of all available OpenNyai models refer to our [OpenNyai Repo](https://github.com/OpenNyAI/Opennyai)
+
 #### Try our models on hugging face [en_legal_ner_trf](https://huggingface.co/opennyaiorg/en_legal_ner_trf) and [en_legal_ner_sm](https://huggingface.co/opennyaiorg/en_legal_ner_sm)
+
 ## 1. Why Seperate NER for Indian Court Judgments?
-Named Entities Recognition is commonly studied problem in Natural Language Processing and many pre-trained models are publicly available. However legal documents have peculiar named entities like names of petitioner, respondent, court, statute, provision, precedents,  etc. These entity types are not recognized by standard Named Entity Recognizer like spacy. Hence there is a need to develop a Legal NER model. But ther are no publicly available annotated datasets for this task for Indian courts. Due to peculiarity of Indian legal processes and terminoligies used, it is important to develop seperate legal NER for Indian court judgment texts.
+
+Named Entities Recognition is commonly studied problem in Natural Language Processing and many pre-trained models are
+publicly available. However legal documents have peculiar named entities like names of petitioner, respondent, court,
+statute, provision, precedents, etc. These entity types are not recognized by standard Named Entity Recognizer like
+spacy. Hence there is a need to develop a Legal NER model. But ther are no publicly available annotated datasets for
+this task for Indian courts. Due to peculiarity of Indian legal processes and terminoligies used, it is important to
+develop seperate legal NER for Indian court judgment texts.
 
 ## 2. Which Legal Entities are covered?
-Some entities are extracted from Preamble of the judgements and some from judgement text. Preamble of judgment contains formatted metadata like names of parties, judges, lawyers,date, court etc. The text following preamble till the end of the judgment is called as the "judgment".
+
+Some entities are extracted from Preamble of the judgements and some from judgement text. Preamble of judgment contains
+formatted metadata like names of parties, judges, lawyers,date, court etc. The text following preamble till the end of
+the judgment is called as the "judgment".
 Below is an example ![Example NER output](NER_example.png)
 
 This code can extract following named entities from Indian Court judgments.
 <center>
- 
+
 | Named Entity             |    Extract From    | Description                                                                                                                                               |
 |:---------------:|:------------------:|-----------------------------------------------------------------------------------------------------------------------------------------------------------|
 | COURT          | Preamble, Judgment | Name of the court which has delivered the current judgement if extracted from Preamble. Name of any court mentioned if extracted from judgment sentences. |
@@ -27,22 +39,39 @@ This code can extract following named entities from Indian Court judgments.
 | CASE\_NUMBER |      Judgment      | All the other case numbers mentioned in the judgment (apart from precedent) where party names and citation is not provided                                |
 | WITNESS    |      Judgment      | Name of witnesses in current judgment                                                                                                                     |
 | OTHER_PERSON    |      Judgment      | Name of the all the person that are not included in petitioner,respondent,judge and witness                                                               |     
- 
+
 </center>
 
-More detailed definitions with examples can be found [here](https://docs.google.com/presentation/d/e/2PACX-1vSpWE_Qk9X_wBh7xJWPyYcWcME3ZBh_HmqeZOx58oMLyJSi0Tn0-JMWKI-HsQIRuUTbQHPql6MlU7OS/pub?start=false&loop=false&delayms=3000)
+More detailed definitions with examples can be
+found [here](https://docs.google.com/presentation/d/e/2PACX-1vSpWE_Qk9X_wBh7xJWPyYcWcME3ZBh_HmqeZOx58oMLyJSi0Tn0-JMWKI-HsQIRuUTbQHPql6MlU7OS/pub?start=false&loop=false&delayms=3000)
+
 ## 3. Data
+
 Training data is available [here](https://storage.googleapis.com/indianlegalbert/OPEN_SOURCED_FILES/NER/NER_TRAIN.zip).
+Dev data is available [here](https://storage.googleapis.com/indianlegalbert/OPEN_SOURCED_FILES/NER/NER_DEV.zip).
 
 ### 3.1 Raw Text used for Annotation
-Judgements obtained via [representative sample genration method](https://github.com/Legal-NLP-EkStep/legal_NER/tree/main/representative_judgments_sample) during the time period from 1950 to 2017 were used to take sentences for annotation of training data. Judgements from 2017 to 2021 were used to select test data judgments. For preannotations, we used spacy pretrained model(en_core_web_trf) with custom rules to predict the legal named entities. This model was used to select sentences which are likely to contain the legal named entities. We also tried to reduce class imbalance across the entities by upsampling the rare entities. The preannotated sentences were annotated by the legal experts and data scientists at OpenNyAI. 
 
-Since the entities present in the preamble and judgment are different, 2 seperate files are provided for training data. There are 9435 judgement sentences and 1560 preambles. 
+Judgements obtained
+via [representative sample genration method](https://github.com/Legal-NLP-EkStep/legal_NER/tree/main/representative_judgments_sample)
+during the time period from 1950 to 2017 were used to take sentences for annotation of training data. Judgements from
+2017 to 2021 were used to select test data judgments. For preannotations, we used spacy pretrained model(
+en_core_web_trf) with custom rules to predict the legal named entities. This model was used to select sentences which
+are likely to contain the legal named entities. We also tried to reduce class imbalance across the entities by
+upsampling the rare entities. The preannotated sentences were annotated by the legal experts and data scientists at
+OpenNyAI.
+
+Since the entities present in the preamble and judgment are different, 2 seperate files are provided for training data.
+There are 9435 judgement sentences and 1560 preambles.
 Entity Counts in Judgment train data
 
 ### 3.3 Nature of Entities
-Document level context was not used during annotation. Complete preambles were presented for the annotations. Individual sentences from judgment were provided for the NER annotations. The idea was to look at an independent sentence and extract entities that could be inferred from that sentence. 
-Flat entities were considered for annotation i.e. "Bank of China" wer considered as ORG entity and "China" were not be marked as GPE inside this entity. 
+
+Document level context was not used during annotation. Complete preambles were presented for the annotations. Individual
+sentences from judgment were provided for the NER annotations. The idea was to look at an independent sentence and
+extract entities that could be inferred from that sentence.
+Flat entities were considered for annotation i.e. "Bank of China" wer considered as ORG entity and "China" were not be
+marked as GPE inside this entity.
 
 ### 3.2 Entity Stats
 
@@ -64,17 +93,27 @@ Flat entities were considered for annotation i.e. "Bank of China" wer considered
 | OTHER\_PERSON                                         | 2653           |                |
 | Total                                          | 17485          | 12479          |
 
+## 4. Train your NER model
 
-## 4. Using Legal NER model
+```bash
+python -m spacy train ./training/config.cfg --output ./output --paths.train ./train.spacy --paths.dev ./dev.spacy
+```
+
+## 5. Using Legal NER model
+
 We have trained an AI model which uses transition based dependency parser on top of the roberta-base model.
-Baseline model was trained using [spacy-transformers](https://spacy.io/usage/training). The trained model was tested on test data and following are the results.
+Baseline model was trained using [spacy-transformers](https://spacy.io/usage/training). The trained model was tested on
+test data and following are the results.
 
 The trained model can be used as follows
+
 1. Create new virtual environment
+
 ```shell
 python3 -m venv /path/to/new/virtual/environment
 source /path/to/new/virtual/environment/bin/activate
 ```
+
 2. Install the trained model
 
 ```shell
@@ -86,12 +125,15 @@ pip install https://huggingface.co/opennyaiorg/en_legal_ner_trf/resolve/main/en_
 ```shell
 pip install https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.2.0/en_core_web_sm-3.2.0-py3-none-any.whl
  ```
+
 4. clone the git repo
+
 ```shell
 git clone https://github.com/Legal-NLP-EkStep/legal_NER.git
 cd legal_NER
 ```
-5. Use following python script to  use pretrained model to find all the entities in a custom input judgement.
+
+5. Use following python script to use pretrained model to find all the entities in a custom input judgement.
 
 ```python 
 import spacy
@@ -118,6 +160,7 @@ options = {"ents": extracted_ent_labels, "colors": colors}
 
 displacy.serve(combined_doc, style='ent',port=8080,options=options)
 ```
+
 Entities can be extracted in two ways which is controlled by parameter run_type:
 
 a.Passing the whole judgment : Whole judgment is passed through the model and entities are extracted.
@@ -126,7 +169,8 @@ It take less time to run but can miss entities as compared to 'sent' method. Use
 b.Passing sentence by sentence:Each sentence is individually passed through model and entities are extracted.
 It takes more time to run but more accurate than passing the whole judgment. Use run_type='sent' for this method.
 
-## 5. Postprocessing
+## 6. Postprocessing
+
 Since the document level context was not used duiring annotation,it is important to
 capture the document level context while inference.This can be done via postprocessing using
 some rules.
@@ -137,54 +181,64 @@ The postprocessing is done on these entities:
 
 1.Precedents:Same precedent is written in multiple forms in a judgment eg. with citation,without
 citation,only petitioner's name supra etc.After postprocessing,all the precedents referring to the same case
-are  clustered together and an extension 'precedent_clusters' is
+are clustered together and an extension 'precedent_clusters' is
 added to the doc which is a dict where the keys are the head of the cluster(longest precedent) and value
 is a list of all the precedents in that cluster.To access the list,use
+
 ```
 doc._.precedent_clusters
 ```
-For example.
- [{Madhu Limaye v. State of Mahrashtra: [Madhu Limaye v. State of Mahrashtra, Madhu Limaye v. State of Maharashtra, Madhu Limaye, Madhu Limaye, Madhu Limaye]}]
- 
 
-2.Provision-Statute:Every provision should have an associated statute but sometimes the 
+For example.
+[{Madhu Limaye v. State of
+Mahrashtra: [Madhu Limaye v. State of Mahrashtra, Madhu Limaye v. State of Maharashtra, Madhu Limaye, Madhu Limaye, Madhu Limaye]
+}]
+
+2.Provision-Statute:Every provision should have an associated statute but sometimes the
 corresponding statutes are not mentioned explicitly in the judgment.Postprocessing contains a
 set of rules to identify statute for each provision and the extension 'provision_statute_clusters'
-is added to the doc which is a list of tuples,each tuple contains provision-statute-normalised provision text eg. (362,IPC,'Section 362') .It can be
+is added to the doc which is a list of tuples,each tuple contains provision-statute-normalised provision text eg. (
+362,IPC,'Section 362') .It can be
 used by:
 
 ```
 doc._.provision_statute_clusters
 ```
+
 For example.
 [(Section 369, Crpc, 'Section 369'), (Section 424, Crpc, 'Section 424')]
 
 3.Other person/Org: Same entities can be tagged with different classes in different sentences of
-the same judgment due to sentence level context.For eg. 'Amit Kumar' can be  a petitioner
+the same judgment due to sentence level context.For eg. 'Amit Kumar' can be a petitioner
 in the preamble but later in the judgment is marked as 'other_person'.So,we reconcile these entities
 based on their relative importance i.e. 'Amit Kumar' will be marked as petitioner in the
 whole judgment.
 
-## 6. Save as csv
+## 7. Save as csv
+
 To save the entity information as csv,use the followinf function
 
 ```
 get_csv(filename,doc,save_path='')
 ```
-It will take the name of the file ,the created nlp doc  and path to save csv as input.
-It will write a csv where each row corresponds to an entity and has columns 
+
+It will take the name of the file ,the created nlp doc and path to save csv as input.
+It will write a csv where each row corresponds to an entity and has columns
 file name,entitiy text,labels and normalised entities.For eg,
 
 ![img.png](img.png)
 
-
-## 7. Google Colab Examples
+## 8. Google Colab Examples
 
 | Description               | Link  |
 |---------------------------|-------|
 | Run Inference          | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/15KEXbcCBXsqJksu7j2hwTyMp5cT9852y?usp=sharing) |
-## 8. Evaluation
+
+## 9. Evaluation
+
 Evaluation portal will be made available soon.
 
 ## Acknowledgements
-This work is part of [OpenNyAI](https://opennyai.org/) mission which is funded by [EkStep](https://ekstep.org/) and [Agami](https://agami.in/). 
+
+This work is part of [OpenNyAI](https://opennyai.org/) mission which is funded by [EkStep](https://ekstep.org/)
+and [Agami](https://agami.in/). 
