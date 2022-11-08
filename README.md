@@ -98,7 +98,7 @@ marked as GPE inside this entity.
 For training we convert the data given in json format to spacy format and then train our model
 
 ```bash
-python -m spacy train ./training/config.cfg --output ./output --paths.train ./train.spacy --paths.dev ./dev.spacy
+python -m spacy train training/config.cfg --output ./output --paths.train training/Combined_Data_Judgement_Preamble_spacy_format/train.spacy --paths.dev training/Combined_Data_Judgement_Preamble_spacy_format/dev.spacy
 ```
 
 ## 5. Using Legal NER model
