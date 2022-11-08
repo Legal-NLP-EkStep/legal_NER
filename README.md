@@ -1,6 +1,6 @@
 # legal_NER
-
-#### For easy usage of all available OpenNyai models refer to our [OpenNyai Repo](https://github.com/OpenNyAI/Opennyai)
+#### This repo is associated with the paper "Named Entity Recognition in Indian court judgments" accepted at NLLP 2022 workshop at EMNLP.
+#### For easy usage of all available OpenNyai models refer to our [OpenNyai Libray](https://github.com/OpenNyAI/Opennyai)
 
 #### Try our models on hugging face [en_legal_ner_trf](https://huggingface.co/opennyaiorg/en_legal_ner_trf) and [en_legal_ner_sm](https://huggingface.co/opennyaiorg/en_legal_ner_sm)
 
