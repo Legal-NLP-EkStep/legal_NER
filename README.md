@@ -93,9 +93,9 @@ marked as GPE inside this entity.
 | OTHER\_PERSON                                         | 2653           |                |
 | Total                                          | 17485          | 12479          |
 
-## 4. Train your NER model
+## 4. Training the NER baseline model
 
-For training we convert the data given in json format to spacy format and then train our model
+For training we have converted the data given in json format to spacy format and then trained our model using Spacy library
 
 ```bash
 python -m spacy train training/config.cfg --output ./output --paths.train training/Combined_Data_Judgement_Preamble_spacy_format/train.spacy --paths.dev training/Combined_Data_Judgement_Preamble_spacy_format/dev.spacy
