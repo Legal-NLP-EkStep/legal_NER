@@ -26,7 +26,7 @@ def extract_entities_from_judgment_text(txt,legal_nlp,nlp_preamble_splitting,tex
     else:
         doc_judgment=get_sentence_docs(judgment_doc,legal_nlp)
 
-    print("Creating doc for jdgement  took " + str(time.time() - judgement_start_time))
+    print("Creating doc for judgement  took " + str(time.time() - judgement_start_time))
     print(len(doc_judgment.ents))
 
     ######### process preamable
