@@ -47,8 +47,9 @@ found [here](https://docs.google.com/presentation/d/e/2PACX-1vSpWE_Qk9X_wBh7xJWP
 
 ## 3. Data
 
-Training data is available [here](https://storage.googleapis.com/indianlegalbert/OPEN_SOURCED_FILES/NER/NER_TRAIN.zip).
-Dev data is available [here](https://storage.googleapis.com/indianlegalbert/OPEN_SOURCED_FILES/NER/NER_DEV.zip).
+Training data is available [here](https://huggingface.co/datasets/opennyaiorg/InLegalNER/resolve/main/NER_TRAIN.zip?download=true).
+Dev data is available [here](https://huggingface.co/datasets/opennyaiorg/InLegalNER/resolve/main/NER_DEV.zip?download=true).
+Test data is available [here](https://huggingface.co/datasets/opennyaiorg/InLegalNER/resolve/main/NER_TEST.zip?download=true).
 
 ### 3.1 Raw Text used for Annotation
 
