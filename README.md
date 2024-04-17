@@ -1,4 +1,5 @@
 # legal_NER
+## The train, dev and test data is now available on [Huggingface Datasets](https://huggingface.co/datasets/opennyaiorg/InLegalNER)
 #### This repo is associated with the paper "Named Entity Recognition in Indian court judgments" accepted at NLLP 2022 workshop at EMNLP.
 #### For easy usage of all available OpenNyai models refer to our [OpenNyai Libray](https://github.com/OpenNyAI/Opennyai)
 
@@ -300,7 +301,7 @@ In the created csv,it will have 4 columns namely:
 
 ## 11. Evaluation
 
-Evaluation portal will be made available soon.
+Evaluation can be done using the test data available at https://huggingface.co/datasets/opennyaiorg/InLegalNER
 
 ## Acknowledgements
 
