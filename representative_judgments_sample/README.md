@@ -1,4 +1,6 @@
-# Representative sample of Indian Court Judgments [HuggingFace datasets](https://huggingface.co/datasets/opennyaiorg/InJudgements_dataset)
+# Representative sample of Indian Court Judgments 
+
+# [HuggingFace datasets](https://huggingface.co/datasets/opennyaiorg/InJudgements_dataset)
 A representative sample of Indian court judgment was created by taking most cited IndianKanoon judgments controlling for court and case type.
 ## Data 
 The data for representative sample during 1950 to 2017 can be found [here](https://huggingface.co/datasets/opennyaiorg/InJudgements_dataset). It has IndianKanoon URL and full text of the judgment.
